@@ -16,7 +16,6 @@ function M.setup(config)
     M.enabled = config.enabled
     M.log_level = config.log_level
     M.log_runtime = config.log_runtime
-    M.notes = config.notes
 
     -- reset cache
     M.cache = {}
@@ -37,20 +36,6 @@ end
 ---@return notedown.buf.Config?
 function M.get_config(buf)
     return M.cache[buf]
-end
-
----@return string[]
-function M.validate()
-    return require('notedown.debug.schema').validate(
-        M.config,
-        Config.schema({
-            log_level = {
-                enum = { 'trace', 'debug', 'info', 'warn', 'error', 'off' },
-            },
-            log_runtime = { type = 'boolean' },
-            notes = { type = 'boolean' },
-        })
-    )
 end
 
 return M

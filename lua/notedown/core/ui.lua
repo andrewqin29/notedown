@@ -97,7 +97,7 @@ function Updater:run()
     local render = self.config.enabled
         and self.config.resolved:render(self.mode)
         and env.win.view(self.win).leftcol == 0
-        and (self.config.render.diff or not env.win.get(self.win, 'diff'))
+        and not env.win.get(self.win, 'diff')
     log.buf('info', 'Render', self.buf, render)
     local next_state = render and 'rendered' or 'default'
     for _, win in ipairs(env.buf.wins(self.buf)) do
@@ -172,9 +172,7 @@ end
 ---@return notedown.Range?
 function Updater:hidden()
     -- anti-conceal is not enabled -> hide nothing
-    -- in disabled mode -> hide nothing
-    local config = self.config.anti_conceal
-    if not config.enabled or env.mode.is(self.mode, config.disabled_modes) then
+    if not self.config.anti_conceal.enabled then
         return nil
     end
     -- row is not known -> buffer is not active -> hide nothing
@@ -188,7 +186,7 @@ function Updater:hidden()
         return { math.min(row, start), math.max(row, start) }
     else
         ---@type notedown.Range
-        return { row - config.above, row + config.below }
+        return { row, row }
     end
 end
 

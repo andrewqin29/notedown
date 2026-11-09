@@ -18,42 +18,7 @@ describe('quote', function()
             '> > > New',
         })
 
-        local marks, row = util.marks(), util.row()
-
-        local levels = {
-            'RmQuote1',
-            'RmQuote2',
-            'RmQuote3',
-            'RmQuote3',
-        }
-
-        marks:add(row:get(0, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(0, 0), { 4, 5 }, util.quote(levels[3]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(0, 0), { 4, 5 }, util.quote(levels[3]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(0, 0), { 4, 5 }, util.quote(levels[3]))
-
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(0, 0), { 4, 5 }, util.quote(levels[4]))
-
-        util.assert_view(marks, {
+        util.assert_screen({
             '▋ Important',
             '▋',
             '▋ Important',
@@ -77,27 +42,8 @@ describe('quote', function()
             '> > Text',
         })
 
-        local marks, row = util.marks(), util.row()
-
-        local levels = {
-            'RmQuote1',
-            'RmQuote2',
-        }
-
-        marks:add(row:get(0, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.heading.icon(1))
-        marks:add(row:get(0, 1), { 2, 0 }, util.heading.bg(1))
-        marks:add(row:get(0, 0), { 0, 1 }, util.quote(levels[1]))
-
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-
-        util.assert_view(marks, {
-            '▋ 󰲡 Heading',
+        util.assert_screen({
+            '▋ Heading',
             '▋',
             '▋ ▋ Tip',
             '▋ ▋',

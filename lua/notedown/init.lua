@@ -3,28 +3,26 @@ local settings = require('notedown.settings')
 ---@class notedown.Init: notedown.Api
 local M = {}
 
----@class (exact) notedown.Config: notedown.partial.Config, notedown.state.Config
+---@class (exact) notedown.Config: notedown.partial.Config
+---@field log_level notedown.log.Level
+---@field log_runtime boolean
 
+---The parts of the config a buffer has its own copy of.
 ---@class (exact) notedown.partial.Config: notedown.base.Config
 ---@field debounce integer
 ---@field anti_conceal notedown.anti.conceal.Config
 ---@field bullet notedown.bullet.Config
 ---@field checkbox notedown.checkbox.Config
 ---@field dash notedown.dash.Config
----@field document notedown.document.Config
 ---@field heading notedown.heading.Config
 ---@field inline_highlight notedown.inline.highlight.Config
 ---@field padding notedown.padding.Config
----@field paragraph notedown.paragraph.Config
 ---@field pipe_table notedown.table.Config
 ---@field quote notedown.quote.Config
----@field render notedown.render.Config
 ---@field win_options notedown.window.Configs
 
----@class (exact) notedown.state.Config
----@field log_level notedown.log.Level
----@field log_runtime boolean
----@field notes boolean
+---Any part of notedown.Config, merged into the defaults.
+---@alias notedown.UserConfig table
 
 ---@private
 ---@type boolean
@@ -32,36 +30,27 @@ M.initialized = false
 
 ---@type notedown.Config
 M.default = {
-    -- Whether markdown should be rendered by default.
+    -- Whether markdown is rendered.
     enabled = true,
-    -- Vim modes that will show a rendered view of the markdown file, :h mode(), for all enabled
-    -- components. Individual components can be enabled for other modes. Remaining modes will be
-    -- unaffected by this plugin.
+    -- Modes that show the rendered view (:h mode()); other modes show the text
+    -- as typed.
     render_modes = { 'n', 'c', 't' },
-    -- Milliseconds that must pass before updating marks, updates occur.
-    -- within the context of the visible window, not the entire buffer.
+    -- Milliseconds to wait after a change before rendering again.
     debounce = 100,
-    -- The level of logs to write to file: vim.fn.stdpath('state') .. '/notedown.log'.
-    -- Only intended to be used for plugin development / debugging.
+    -- Logs to vim.fn.stdpath('state') .. '/notedown.log', for development.
     log_level = 'error',
-    -- Print runtime of main update method.
-    -- Only intended to be used for plugin development / debugging.
+    -- Log how long each render takes, for development.
     log_runtime = false,
-    -- Render the note format (notes/), on top of plain markdown rendering.
-    notes = true,
-    anti_conceal = settings.anti_conceal.default,
-    padding = settings.padding.default,
-    heading = settings.heading.default,
-    paragraph = settings.paragraph.default,
-    dash = settings.dash.default,
-    document = settings.document.default,
-    bullet = settings.bullet.default,
-    checkbox = settings.checkbox.default,
-    quote = settings.quote.default,
-    render = settings.render.default,
-    pipe_table = settings.pipe_table.default,
-    inline_highlight = settings.inline_highlight.default,
-    win_options = settings.win_options.default,
+    anti_conceal = settings.anti_conceal,
+    bullet = settings.bullet,
+    checkbox = settings.checkbox,
+    dash = settings.dash,
+    heading = settings.heading,
+    inline_highlight = settings.inline_highlight,
+    padding = settings.padding,
+    pipe_table = settings.pipe_table,
+    quote = settings.quote,
+    win_options = settings.win_options,
 }
 
 ---@param opts? notedown.UserConfig
@@ -83,17 +72,7 @@ end
 ---@param user notedown.UserConfig
 ---@return notedown.Config
 function M.resolve_config(user)
-    local preset = require('notedown.lib.presets').get(user)
-    -- the note format's settings (notes/init.lua) apply under the user's
-    local notes = user.notes ~= false and require('notedown.notes').defaults or {}
-    local config = vim.tbl_deep_extend('force', M.default, notes, preset, user)
-
-    -- override settings that are incompatible with other settings
-    if vim.tbl_contains({ 'raw', 'overlay' }, config.pipe_table.cell) then
-        config.pipe_table.wrap = false
-    end
-
-    return config
+    return vim.tbl_deep_extend('force', M.default, user)
 end
 
 return setmetatable(M, {

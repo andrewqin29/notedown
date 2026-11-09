@@ -56,8 +56,10 @@ function Extmark:show(ns, buf)
     if ok then
         self.id = id
     else
-        local compat = require('notedown.lib.compat')
-        compat.release(('nvim_buf_set_extmark error (%s)'):format(id))
+        local message = ('notedown: could not draw a mark (%s)'):format(id)
+        vim.schedule(function()
+            vim.notify_once(message, vim.log.levels.ERROR)
+        end)
     end
 end
 

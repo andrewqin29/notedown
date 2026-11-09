@@ -25,21 +25,4 @@ function M.list.sort(values, f)
     end)
 end
 
----@class notedown.iter.Table
-M.table = {}
-
----@generic T
----@param values { [any]: T }
----@param f fun(value: T): boolean
----@return T[]
-function M.table.filter(values, f)
-    local result = {}
-    for _, value in pairs(values) do
-        if f(value) then
-            result[#result + 1] = value
-        end
-    end
-    return result
-end
-
 return M

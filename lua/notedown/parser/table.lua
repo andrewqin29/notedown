@@ -132,9 +132,6 @@ function Parser:parse(root, marks)
             if available < 0 then
                 width = width - available
             end
-            if self.config.cell == 'trimmed' then
-                width = width - math.max(available, 0)
-            end
             cols[i].width = math.max(cols[i].width, width)
         end
     end
@@ -161,7 +158,7 @@ function Parser:parse(root, marks)
         local padding = self.config.padding
         for i, col in ipairs(cols) do
             desired[i] = col.width
-            minimum[i] = math.max(self.config.min_width, 2 * padding + 1)
+            minimum[i] = 2 * padding + 1
         end
 
         prefix(delim)
@@ -223,11 +220,6 @@ function Parser:cols(node)
         local end_col = parts.pipes[i + 1].start_col
         local width = end_col - start_col
         assert(width >= 0, 'invalid table layout')
-        if self.config.cell == 'padded' then
-            width = math.max(width, self.config.min_width)
-        elseif self.config.cell == 'trimmed' then
-            width = self.config.min_width
-        end
         cols[#cols + 1] = {
             width = width,
             alignment = Parser.alignment(cell),
@@ -270,7 +262,6 @@ function Parser:row(node, num_cols)
         local width = (end_col - start_col)
             - (cell.end_col - cell.start_col)
             + self.context:width(cell)
-            + self.config.cell_offset({ node = cell:get() })
         assert(width >= 0, 'invalid table layout')
         cells[#cells + 1] = {
             node = cell,

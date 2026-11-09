@@ -43,11 +43,6 @@ function Line:extend(other)
     return self
 end
 
----@return notedown.Line
-function Line:copy()
-    return Line.new(self.highlight):extend(self)
-end
-
 ---@param i integer 1-based inclusive
 ---@param j integer 1-based inclusive
 ---@return notedown.Line

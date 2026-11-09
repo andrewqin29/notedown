@@ -73,24 +73,6 @@ function Node:height()
     return self.end_row - self.start_row + 1
 end
 
----@return integer[]
-function Node:sections()
-    local result = {} ---@type integer[]
-    local levels = 0 ---@type integer
-    local section = self:parent('section')
-    while section do
-        local level = section:level(false)
-        result[level] = section:sibling_count('section', level)
-        levels = math.max(levels, level)
-        section = section:parent('section')
-    end
-    -- fill in any heading level gaps with 0
-    for i = 1, levels do
-        result[i] = result[i] or 0
-    end
-    return result
-end
-
 ---@param parent boolean
 ---@return integer
 function Node:level(parent)
@@ -187,12 +169,6 @@ function Node:child(target, row)
     return nil
 end
 
----@return notedown.Node?
-function Node:scope()
-    local node = self:child('paragraph')
-    return node and node:child('inline')
-end
-
 ---@param callback fun(node: notedown.Node)
 function Node:for_each_child(callback)
     for node in self.node:iter_children() do
@@ -239,17 +215,6 @@ function Node:line(position, by)
         error(('invalid position: %s'):format(position))
     end
     return row, vim.api.nvim_buf_get_lines(self.buf, row, row + 1, false)[1]
-end
-
----@return integer[]
-function Node:widths()
-    local lines = vim.api.nvim_buf_get_lines(
-        self.buf,
-        self.start_row,
-        self.end_row,
-        false
-    )
-    return iter.list.map(lines, str.width)
 end
 
 ---@param pattern string

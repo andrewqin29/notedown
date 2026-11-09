@@ -1,7 +1,7 @@
 init := "tests/minimal_init.lua"
 settings := "{ minimal_init = " + quote(init) + ", sequential = true, keep_going = false }"
 
-default: check test bench health
+default: check test health
 
 check:
     selene --quiet .
@@ -9,10 +9,6 @@ check:
 
 test:
     just busted "tests"
-
-bench:
-    python scripts/generate.py
-    just busted "benches"
 
 [private]
 busted path:

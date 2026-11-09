@@ -88,8 +88,8 @@ function M.define_highlights()
   local comment = vim.api.nvim_get_hl(0, { name = "Comment", link = false }).fg
   vim.api.nvim_set_hl(0, "NotesImageCaption", { fg = comment, italic = true })
   vim.api.nvim_set_hl(0, "NotesHighlight", { bg = "#ffd700", fg = "#000000" })
-  -- Inline `code` gets a background here: the notedown fork has no code
-  -- rendering of its own (notes/init.lua).
+  -- Inline `code` gets a background here: the markdown renderer leaves code
+  -- alone.
   vim.api.nvim_set_hl(0, "@markup.raw.markdown_inline", { link = "NotedownCodeInline" })
   -- >> boxed blocks: white text, the border in the text's dimmer color.
   vim.api.nvim_set_hl(0, "NotesBoxText", { fg = "#ffffff" })

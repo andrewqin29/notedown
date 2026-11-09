@@ -1,5 +1,4 @@
 local icons = require('notedown.lib.icons')
-local state = require('notedown.state')
 
 ---@alias notedown.health.Language
 ---| 'markdown'
@@ -17,18 +16,8 @@ function M.check()
     vim.health.ok('tree-sitter ABI: ' .. vim.treesitter.language_version)
     vim.health.ok('plugin: ' .. M.version)
 
-    M.start('configuration')
-    local errors = state.validate()
-    if #errors == 0 then
-        vim.health.ok('valid')
-    else
-        for _, message in ipairs(errors) do
-            vim.health.error(message)
-        end
-    end
-
-    M.ts_info('markdown', true, true)
-    M.ts_info('markdown_inline', true, false)
+    M.ts_info('markdown', true)
+    M.ts_info('markdown_inline', false)
 
     M.start('icons')
     local provider = icons.name()
@@ -37,7 +26,6 @@ function M.check()
     else
         vim.health.warn('none installed')
     end
-
 end
 
 ---@private
@@ -61,45 +49,32 @@ end
 
 ---@private
 ---@param language notedown.health.Language
----@param required boolean
 ---@param active boolean
-function M.ts_info(language, required, active)
+function M.ts_info(language, active)
     M.start('tree-sitter ' .. language)
 
     local has_parser, parser = pcall(vim.treesitter.get_parser, 0, language)
     if has_parser and parser then
         vim.health.ok('parser: installed')
     else
-        local message = 'parser: not installed'
-        if not required then
-            vim.health.warn(message, M.disable(language))
-        else
-            vim.health.error(message)
-        end
+        vim.health.error('parser: not installed')
     end
 
     local has_info, info = pcall(vim.treesitter.language.inspect, language)
     if has_info and info then
         vim.health.ok('ABI: ' .. info.abi_version)
     else
-        local message = 'ABI: unknown'
-        if not required then
-            vim.health.warn(message, M.disable(language))
-        else
-            vim.health.error(message)
-        end
+        vim.health.error('ABI: unknown')
     end
 
-    if required then
-        local files = vim.treesitter.query.get_files(language, 'highlights')
-        if #files > 0 then
-            for _, file in ipairs(files) do
-                local path = vim.fn.fnamemodify(file, ':~')
-                vim.health.ok('highlights: ' .. path)
-            end
-        else
-            vim.health.error('highlights: unknown')
+    local files = vim.treesitter.query.get_files(language, 'highlights')
+    if #files > 0 then
+        for _, file in ipairs(files) do
+            local path = vim.fn.fnamemodify(file, ':~')
+            vim.health.ok('highlights: ' .. path)
         end
+    else
+        vim.health.error('highlights: unknown')
     end
 
     if active then
@@ -116,26 +91,6 @@ function M.ts_info(language, required, active)
             })
         end
     end
-end
-
----@private
----@param language notedown.health.Language
----@return string
-function M.disable(language)
-    local format = [[
-    disable %s support to avoid this warning
-    require("notedown").setup({
-        %s = { enabled = false },
-    })
-    ]]
-    return M.trim(format:format(language, language))
-end
-
----@private
----@param s string
----@return string
-function M.trim(s)
-    return (s:gsub('%s+$', ''))
 end
 
 return M

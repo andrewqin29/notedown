@@ -1,5 +1,5 @@
--- The note format this fork renders, on top of notedown's own markdown
--- rendering. Its parts:
+-- The note format: what notedown draws on top of the markdown renderer in
+-- lua/notedown/. Its parts:
 --
 --   blocks          >> note / tip / important / warning / caution, >> python
 --                   and other code, >> latex, >> mermaid, >> boxed (blocks.lua)
@@ -17,38 +17,6 @@
 -- graphics protocol (Ghostty, kitty). Mermaid needs mermaid-cli (mmdc).
 
 local M = {}
-
--- notedown settings the format uses, under the user's own.
-M.defaults = {
-  -- The quote bar on every wrapped line, not only the first. Wrapped quote
-  -- lines start two columns in, under the text (blocks.lua, list_pattern).
-  quote = { repeat_linebreak = true },
-  -- No icons in front of headings, and no colored bar
-  -- behind # and ## (drawn as images, heading_images.lua).
-  heading = {
-    icons = { "" },
-    position = "inline",
-    backgrounds = { "Normal", "Normal", "NotedownH3Bg", "NotedownH4Bg",
-      "NotedownH5Bg", "NotedownH6Bg" },
-  },
-  -- ==highlighted== text, bright yellow (NotesHighlight, blocks.lua).
-  inline_highlight = { highlight = "NotesHighlight" },
-  -- Lists start one level in from the text around them. Bullets by level:
-  -- medium dots (Nerd Font octicons dot-fill and dot), then medium squares
-  -- (Nerd Font Material Design icons), each one column wide.
-  bullet = { left_pad = 2, icons = { "\u{f444}", "\u{f4c3}", "\u{f0a13}", "\u{f0a14}" } },
-  checkbox = { left_pad = 2 },
-  -- Only while rendered: raw view wraps as usual.
-  win_options = {
-    -- Wrap between words, not mid-word.
-    linebreak = { default = vim.o.linebreak, rendered = true },
-    -- A wrapped list item or quote continues under its text, not its bullet
-    -- or bar; other lines continue at the left edge. How far in is set by
-    -- 'formatlistpat' (blocks.lua, list_pattern).
-    breakindent = { default = vim.o.breakindent, rendered = true },
-    breakindentopt = { default = vim.o.breakindentopt, rendered = "list:-1" },
-  },
-}
 
 -- The plugin's own directory, for its assets.
 local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h:h:h:h")

@@ -28,7 +28,8 @@ function M.init()
     M.file = vim.fn.stdpath('state') .. '/notedown.log'
     M.entries = {}
     -- clear the file contents if it is too big
-    if env.file_size_mb(M.file) > 5 then
+    local stats = vim.uv.fs_stat(M.file)
+    if stats and stats.size > 5 * 1024 * 1024 then
         assert(io.open(M.file, 'w')):close()
     end
     -- write out any logs before closing
@@ -44,7 +45,6 @@ end
 function M.runtime(name, callback)
     if state.log_runtime then
         return function()
-            local compat = require('notedown.lib.compat')
             local start_time = vim.uv.hrtime()
             callback()
             local end_time = vim.uv.hrtime()

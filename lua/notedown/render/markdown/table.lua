@@ -38,13 +38,11 @@ function Render:run()
             self:row(row)
         end
 
-        if self.data.layout.valid and self:border_equal(row) then
-            if i == 1 and self.config.border_enabled then
+        if self.data.layout.valid then
+            if i == 1 then
                 self:border_row(row, 'above', lines)
-            elseif i == #self.data.rows and self.config.border_enabled then
+            elseif i == #self.data.rows then
                 self:border_row(row, 'below', lines)
-            elseif i > 1 and i < #self.data.rows and self.config.grid then
-                self:border_row(row, 'body', lines)
             end
         end
 
@@ -116,26 +114,18 @@ function Render:row(row)
     local header = row.node.type == 'pipe_table_header'
     local highlight = header and self.config.head or self.config.row
 
-    if vim.tbl_contains({ 'trimmed', 'padded', 'raw' }, self.config.cell) then
-        for _, pipe in ipairs(row.pipes) do
-            self.marks:over(self.config, 'table_border', pipe, {
-                virt_text = { { icon, highlight } },
-                virt_text_pos = 'overlay',
-            })
-        end
-    end
-
-    if vim.tbl_contains({ 'trimmed', 'padded' }, self.config.cell) then
-        for i, cell in ipairs(row.cells) do
-            local left, right = self:shifts(self.data.cols[i], cell)
-            self:shift(cell.node, 'left', left)
-            self:shift(cell.node, 'right', right)
-        end
-    elseif self.config.cell == 'overlay' then
-        self.marks:over(self.config, 'table_border', row.node, {
-            virt_text = { { row.node.text:gsub('|', icon), highlight } },
+    for _, pipe in ipairs(row.pipes) do
+        self.marks:over(self.config, 'table_border', pipe, {
+            virt_text = { { icon, highlight } },
             virt_text_pos = 'overlay',
         })
+    end
+
+    -- each cell padded to its column's width
+    for i, cell in ipairs(row.cells) do
+        local left, right = self:shifts(self.data.cols[i], cell)
+        self:shift(cell.node, 'left', left)
+        self:shift(cell.node, 'right', right)
     end
 end
 
@@ -236,31 +226,22 @@ end
 
 ---@private
 ---@param row notedown.table.Row
----@param position 'above'|'body'|'below'
+---@param position 'above'|'below'
 ---@param lines? notedown.mark.Line[]
 function Render:border_row(row, position, lines)
-    local virtual = true
-    local start_row = row.node.start_row
+    -- on the empty line above or below the table when there is one, otherwise
+    -- as a virtual line
     local line = self:line()
-
-    if position == 'body' then
-        line:extend(self.data.prefixes[start_row])
-    else
-        -- needed for type narrowing
-        position = position == 'above' and 'above' or 'below'
-        local target_row, target = row.node:line(position, 1)
-        virtual = self.config.border_virtual
-            or not (target and str.width(target) == 0)
-            or not self.context.used:take(target_row)
-        start_row = virtual and start_row or target_row
-        line:pad(self.data.layout.col)
-    end
+    local target_row, target = row.node:line(position, 1)
+    local virtual = not (target and str.width(target) == 0)
+        or not self.context.used:take(target_row)
+    local start_row = virtual and row.node.start_row or target_row
+    line:pad(self.data.layout.col)
 
     line:extend(self:border_line(position, {}))
 
     if not virtual then
         self.marks:add(self.config, 'table_border', start_row, 0, {
-            priority = self.config.border_priority,
             virt_text = line:get(),
             virt_text_pos = 'overlay',
         })
@@ -320,29 +301,6 @@ function Render:border_line(position, opts)
         or self.config.row
 
     return self:line():text(text, highlight):get()
-end
-
----@private
----@param row notedown.table.Row
----@return boolean
-function Render:border_equal(row)
-    if vim.tbl_contains({ 'trimmed', 'padded' }, self.config.cell) then
-        -- assume table was modified to match
-        return true
-    elseif self.config.cell == 'raw' then
-        -- want the computed widths to match
-        for i, cell in ipairs(row.cells) do
-            if cell.width ~= self.data.cols[i].width then
-                return false
-            end
-        end
-        return true
-    elseif self.config.cell == 'overlay' then
-        -- want the underlying text widths to match
-        return str.width(row.node.text) == str.width(self.data.delim.text)
-    else
-        return false
-    end
 end
 
 return Render

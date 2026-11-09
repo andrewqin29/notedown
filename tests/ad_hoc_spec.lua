@@ -10,8 +10,7 @@ describe('ad hoc', function()
             'Heading 2 Line 2',
             '---',
         })
-        local marks = util.marks()
-        util.assert_view(marks, {
+        util.assert_screen({
             'Heading 2 Line 1',
             'Heading 2 Line 2',
             '---',
@@ -20,7 +19,6 @@ describe('ad hoc', function()
 
     it('shortcut', function()
         util.setup.text({ '[Normal Shortcut]' })
-        local marks = util.marks()
-        util.assert_view(marks, { 'Normal Shortcut' })
+        util.assert_screen({ 'Normal Shortcut' })
     end)
 end)

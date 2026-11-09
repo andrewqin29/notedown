@@ -9,6 +9,4 @@ require('notedown.core.command').init()
 require('notedown.core.log').init()
 require('notedown.core.manager').init()
 -- the note format: highlights, commands, snacks.nvim images (notes/init.lua)
-if require('notedown.state').notes then
-    require('notedown.notes').setup()
-end
+require('notedown.notes').setup()

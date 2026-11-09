@@ -3,42 +3,6 @@ local list = require('notedown.lib.list')
 ---@class notedown.Env
 local M = {}
 
----@param key 'ft'|'cmd'
----@return string[]
-function M.lazy(key)
-    -- https://github.com/folke/lazydev.nvim/blob/main/lua/lazydev/pkg.lua -> get_plugin_path
-    if type(package.loaded.lazy) ~= 'table' then
-        return {}
-    end
-    local config_ok, lazy_config = pcall(require, 'lazy.core.config')
-    local plugin_ok, lazy_plugin = pcall(require, 'lazy.core.plugin')
-    if not config_ok or not plugin_ok then
-        return {}
-    end
-    local name = 'notedown'
-    local plugin = lazy_config.spec.plugins[name]
-    if not plugin then
-        return {}
-    end
-    local ok, values = pcall(lazy_plugin.values, plugin, key, true)
-    return ok and values or {}
-end
-
----@param file string|integer
----@return number
-function M.file_size_mb(file)
-    if type(file) ~= 'string' then
-        file = vim.api.nvim_buf_get_name(file)
-    end
-    local ok, stats = pcall(function()
-        return vim.uv.fs_stat(file)
-    end)
-    if not ok or not stats then
-        return 0
-    end
-    return stats.size / (1024 * 1024)
-end
-
 ---@param buf integer
 ---@param win integer
 ---@return boolean
@@ -66,18 +30,6 @@ function M.range(buf, win, offset)
     end
     ---@type notedown.Range
     return { top, bottom }
-end
-
----@param options string|string[]
----@return string[]
-function M.commands(options)
-    local result = {} ---@type string[]
-    for _, option in ipairs(list.ensure(options)) do
-        if vim.fn.executable(option) == 1 then
-            result[#result + 1] = option
-        end
-    end
-    return result
 end
 
 ---@class notedown.env.Row
@@ -170,15 +122,6 @@ function M.buf.get(buf, name)
 end
 
 ---@param buf integer
----@param name string
----@param value notedown.option.Value
-function M.buf.set(buf, name, value)
-    if value ~= M.buf.get(buf, name) then
-        vim.api.nvim_set_option_value(name, value, { buf = buf })
-    end
-end
-
----@param buf integer
 ---@return boolean
 function M.buf.empty(buf)
     if vim.api.nvim_buf_line_count(buf) > 1 then
@@ -260,21 +203,6 @@ function M.win.width(win)
     local infos = vim.fn.getwininfo(win)
     local textoff = #infos == 1 and infos[1].textoff or 0
     return vim.api.nvim_win_get_width(win) - textoff
-end
-
----@param win integer
----@param value number
----@param used integer
----@return integer
-function M.win.percent(win, value, used)
-    if value <= 0 then
-        return 0
-    elseif value >= 1 then
-        return value
-    else
-        local width = M.win.width(win) - used
-        return math.floor((width * value) + 0.5)
-    end
 end
 
 return M

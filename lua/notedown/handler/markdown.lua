@@ -10,19 +10,11 @@ local M = {}
 function M.parse(ctx)
     -- stylua: ignore
     local query = ts.parse('markdown', [[
-        [
-            (thematic_break)
-            (minus_metadata)
-            (plus_metadata)
-        ] @dash
-
-        (document) @document
+        (thematic_break) @dash
 
         (atx_heading) @heading
 
         (list_item) @list
-
-        (section (paragraph) @paragraph)
 
         (block_quote) @quote
 
@@ -31,10 +23,8 @@ function M.parse(ctx)
     ---@type table<string, notedown.Render>
     local renders = {
         dash = require('notedown.render.markdown.dash'),
-        document = require('notedown.render.markdown.document'),
         heading = require('notedown.render.markdown.heading'),
         list = require('notedown.render.markdown.list'),
-        paragraph = require('notedown.render.markdown.paragraph'),
         quote = require('notedown.render.markdown.quote'),
         table = require('notedown.render.markdown.table'),
     }
@@ -47,9 +37,7 @@ function M.parse(ctx)
     end)
     -- the note format's blocks, typography and justification (notes/blocks.lua)
     local result = marks:get()
-    if require('notedown.state').notes then
-        vim.list_extend(result, require('notedown.notes.blocks').parse(ctx))
-    end
+    vim.list_extend(result, require('notedown.notes.blocks').parse(ctx))
     return result
 end
 

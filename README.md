@@ -72,15 +72,16 @@ before any file opens.
 
 ## Configuration
 
-`opts` takes render-markdown.nvim's settings (see `lua/notedown/settings.lua`).
-`notes = false` turns the note format off, leaving plain markdown rendering.
+`opts` is merged into the defaults in `lua/notedown/settings.lua`: the icons,
+colors and spacing of bullets, checkboxes, headings, quotes, tables and
+thematic breaks, and the window options set while a note is rendered.
 
 ## Development
 
 - The format is in `lua/notedown/notes/`; the markdown renderer is the rest of
   `lua/notedown/`.
 - Tests: `just test`. They need plenary.nvim, nvim-treesitter and mini.icons in
-  Neovim's data directory, and test the markdown renderer (`notes = false`).
+  Neovim's data directory. Rendering tests compare the drawn screen.
 
 ## License
 

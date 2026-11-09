@@ -1,5 +1,4 @@
 local Base = require('notedown.render.base')
-local Bullet = require('notedown.render.markdown.bullet')
 local str = require('notedown.lib.str')
 
 ---@class notedown.checkbox.Value
@@ -11,7 +10,6 @@ local str = require('notedown.lib.str')
 ---@field checkbox notedown.Node
 ---@field icon string
 ---@field highlight string
----@field scope_highlight? string
 
 ---@class notedown.render.Checkbox: notedown.Render
 ---@field private config notedown.checkbox.Config
@@ -42,7 +40,6 @@ function Render:setup()
         checkbox = value.node,
         icon = value.config.icon,
         highlight = value.config.highlight,
-        scope_highlight = value.config.scope_highlight,
     }
     return true
 end
@@ -68,20 +65,16 @@ end
 function Render:run()
     self:marker()
     self:checkbox()
-    self:scope()
 end
 
 ---@private
 function Render:marker()
-    if self.config.bullet then
-        Bullet:execute(self.context, self.marks, self.node)
-    else
-        -- https://github.com/tree-sitter-grammars/tree-sitter-markdown/issues/127
-        local node = self.data.marker
-        self.marks:over(self.config, 'check_icon', node, {
-            conceal = '',
-        }, { 0, str.spaces('start', node.text), 0, 0 })
-    end
+    -- the list bullet is hidden
+    -- https://github.com/tree-sitter-grammars/tree-sitter-markdown/issues/127
+    local node = self.data.marker
+    self.marks:over(self.config, 'check_icon', node, {
+        conceal = '',
+    }, { 0, str.spaces('start', node.text), 0, 0 })
 end
 
 ---@private
@@ -124,18 +117,6 @@ function Render:checkbox()
             conceal = '',
         })
     end
-end
-
----@private
-function Render:scope()
-    local highlight = self.data.scope_highlight
-    if not highlight then
-        return
-    end
-    self.marks:over(self.config, 'check_scope', self.node:scope(), {
-        priority = self.config.scope_priority,
-        hl_group = highlight,
-    })
 end
 
 return Render

@@ -2,14 +2,12 @@ local Base = require('notedown.render.base')
 local list = require('notedown.lib.list')
 local str = require('notedown.lib.str')
 
+---List bullets: an icon by how deeply the list is nested (renumbered numbers
+---for ordered lists), with the item moved left_pad columns in.
 ---@class notedown.bullet.Data
 ---@field marker notedown.Node
 ---@field root? notedown.Node
----@field icon? string
----@field highlight? string
----@field scope_highlight? string
----@field left_pad integer
----@field right_pad integer
+---@field icon string
 
 ---@class notedown.render.Bullet: notedown.Render
 ---@field private config notedown.bullet.Config
@@ -29,72 +27,33 @@ function Render:setup()
         return false
     end
     local level, root = self.node:level_in('list')
-    ---@type notedown.bullet.Context
-    local ctx = {
-        level = level,
-        index = self.node:sibling_count('list_item'),
-        value = marker.text,
-    }
-    local ordered_types = { 'list_marker_dot', 'list_marker_parenthesis' }
-    local ordered = vim.tbl_contains(ordered_types, marker.type)
-    local icons = ordered and self.config.ordered_icons or self.config.icons
-    self.data = {
-        marker = marker,
-        root = root,
-        icon = Render.get_string(icons, ctx),
-        highlight = Render.get_string(self.config.highlight, ctx),
-        scope_highlight = Render.get_string(self.config.scope_highlight, ctx),
-        left_pad = Render.get_integer(self.config.left_pad, ctx),
-        right_pad = Render.get_integer(self.config.right_pad, ctx),
-    }
+    local icon ---@type string
+    if marker.type == 'list_marker_dot' or marker.type == 'list_marker_parenthesis' then
+        -- the number as written, or the item's position for lists of 1. 1. 1.
+        local value = vim.trim(marker.text)
+        local number = tonumber(value:sub(1, #value - 1)) or 0
+        icon = ('%d.'):format(number > 1 and number or self.node:sibling_count('list_item'))
+    else
+        icon = assert(list.cycle(self.config.icons, level))
+    end
+    self.data = { marker = marker, root = root, icon = icon }
     return true
-end
-
----@private
----@param values notedown.bullet.String
----@param ctx notedown.bullet.Context
----@return string?
-function Render.get_string(values, ctx)
-    if type(values) == 'function' then
-        return values(ctx)
-    else
-        local value = list.cycle(values, ctx.level)
-        return list.clamp(value, ctx.index)
-    end
-end
-
----@private
----@param value notedown.bullet.Integer
----@param ctx notedown.bullet.Context
----@return integer
-function Render.get_integer(value, ctx)
-    if type(value) == 'function' then
-        return value(ctx)
-    else
-        return value
-    end
 end
 
 ---@protected
 function Render:run()
     self:marker()
     self:padding()
-    self:scope()
 end
 
 ---@private
 function Render:marker()
-    local icon = self.data.icon
-    local highlight = self.data.highlight
-    if not icon or not highlight then
-        return
-    end
     -- https://github.com/tree-sitter-grammars/tree-sitter-markdown/issues/127
     local node = self.data.marker
-    local text = str.pad(str.spaces('start', node.text)) .. icon
+    local text = str.pad(str.spaces('start', node.text)) .. self.data.icon
     local overflow = str.width(text) > str.width(node.text)
     self.marks:over(self.config, 'bullet', node, {
-        virt_text = { { text, highlight } },
+        virt_text = { { text, self.config.highlight } },
         virt_text_pos = overflow and 'inline' or 'overlay',
         conceal = overflow and '' or nil,
     })
@@ -102,30 +61,18 @@ end
 
 ---@private
 function Render:padding()
-    local left_line = self:line():pad(self.data.left_pad):get()
-    local right_line = self:line():pad(self.data.right_pad):get()
-    if #left_line == 0 and #right_line == 0 then
+    local padding = self:line():pad(self.config.left_pad):get()
+    if #padding == 0 then
         return
     end
     local root = self.data.root
-    local start_row, end_row = self.node.start_row, self:end_row()
-    for row = start_row, end_row - 1 do
-        local left = root and root.start_col or self.node.start_col
-        local right = row == start_row and self.data.marker.end_col - 1 or left
-        if #left_line > 0 then
-            self.marks:add(self.config, false, row, left, {
-                priority = 100,
-                virt_text = left_line,
-                virt_text_pos = 'inline',
-            })
-        end
-        if #right_line > 0 then
-            self.marks:add(self.config, false, row, right, {
-                priority = 100,
-                virt_text = right_line,
-                virt_text_pos = 'inline',
-            })
-        end
+    for row = self.node.start_row, self:end_row() - 1 do
+        local col = root and root.start_col or self.node.start_col
+        self.marks:add(self.config, false, row, col, {
+            priority = 100,
+            virt_text = padding,
+            virt_text_pos = 'inline',
+        })
     end
 end
 
@@ -144,20 +91,7 @@ function Render:end_row()
     local row = self.node.end_row
     local _, line = root:line('last', 0)
     local ignore_last = root.end_row == row and str.width(line) == 0
-    local offset = ignore_last and 1 or 0
-    return row - offset
-end
-
----@private
-function Render:scope()
-    local highlight = self.data.scope_highlight
-    if not highlight then
-        return
-    end
-    self.marks:over(self.config, true, self.node:scope(), {
-        priority = self.config.scope_priority,
-        hl_group = highlight,
-    })
+    return row - (ignore_last and 1 or 0)
 end
 
 return Render

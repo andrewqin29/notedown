@@ -8,18 +8,9 @@ describe('checkbox', function()
             '1.  -  [x]  Checked Checkbox',
             '1.  -  [ ]  Unchecked Checkbox',
         })
-        local marks = util.marks()
-        marks:add({ 0, 0 }, { 0, 4 }, util.ordered(1))
-        marks:add({ 0, 0 }, { 4, 7 }, util.conceal())
-        marks:add(0, 7, util.checkbox('checked', 1))
-        marks:add({ 0, 0 }, { 10, 11 }, util.conceal())
-        marks:add({ 1, 1 }, { 0, 4 }, util.ordered(2))
-        marks:add({ 1, 1 }, { 4, 7 }, util.conceal())
-        marks:add(1, 7, util.checkbox('unchecked', 1))
-        marks:add({ 1, 1 }, { 10, 11 }, util.conceal())
-        util.assert_view(marks, {
-            '1.  󰱒   Checked Checkbox',
-            '2.  󰄱   Unchecked Checkbox',
+        util.assert_screen({
+            '1.    󰱒   Checked Checkbox',
+            '2.    󰄱   Unchecked Checkbox',
         })
     end)
 
@@ -27,10 +18,8 @@ describe('checkbox', function()
         util.setup.text({
             '- Todo [-] Checkbox',
         })
-        local marks = util.marks()
-        marks:add({ 0, 0 }, { 0, 2 }, util.bullet(1))
-        util.assert_view(marks, {
-            '● Todo - Checkbox',
+        util.assert_screen({
+            '   Todo - Checkbox',
         })
     end)
 
@@ -40,12 +29,8 @@ describe('checkbox', function()
         }, {
             checkbox = { unchecked = { icon = 'é' } },
         })
-        local marks = util.marks()
-        marks:add({ 0, 0 }, { 0, 2 }, util.conceal())
-        marks:add(0, 2, util.checkbox('unchecked', 1, 'é'))
-        marks:add({ 0, 0 }, { 4, 6 }, util.conceal())
-        util.assert_view(marks, {
-            'é Unchecked Checkbox',
+        util.assert_screen({
+            '  é Unchecked Checkbox',
         })
     end)
 end)

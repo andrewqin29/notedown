@@ -6,7 +6,6 @@ local ts = require('notedown.core.ts')
 ---@field level integer
 ---@field icon string
 ---@field highlight string
----@field repeat_linebreak? boolean
 
 ---@class notedown.render.Quote: notedown.Render
 ---@field private config notedown.quote.Config
@@ -24,9 +23,8 @@ function Render:setup()
     local level = self.node:level_in('block_quote')
     self.data = {
         level = level,
-        icon = assert(list.cycle(self.config.icon, level)),
+        icon = self.config.icon,
         highlight = assert(list.cycle(self.config.highlight, level)),
-        repeat_linebreak = self.config.repeat_linebreak or nil,
     }
     return true
 end
@@ -73,7 +71,8 @@ function Render:marker(node, index)
         end_col = range[4],
         virt_text = { { self.data.icon, self.data.highlight } },
         virt_text_pos = 'overlay',
-        virt_text_repeat_linebreak = self.data.repeat_linebreak,
+        -- on wrapped lines too, which start under the text (notes/blocks.lua)
+        virt_text_repeat_linebreak = true,
     })
 end
 
