@@ -32,6 +32,7 @@ Sixth level
 Some bold, italic, **not bold**, __not italic__, code and highlighted
 text.
 Not highlighted: ==in code== and bold ==inside== bold.
+Some struck text, ~~not struck~~, a —— dash and --help.
 
 ▋ !NOTE
 ▋ a plain quote: callouts are >> blocks
@@ -99,5 +100,9 @@ Setext heading
 29:64  to 29:66  conceal ""
 29:64  to 29:79  hl NotedownHighlight
 29:77  to 29:79  conceal ""
-32:0  to 32:1  overlay "▋":NotedownQuote  repeat
+31:5  to 31:7  conceal ""
+31:5  to 31:15  hl NotedownStrikethrough
+31:13  to 31:15  conceal ""
+31:40  to 31:42  overlay "——"
 33:0  to 33:1  overlay "▋":NotedownQuote  repeat
+34:0  to 34:1  overlay "▋":NotedownQuote  repeat

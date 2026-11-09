@@ -7,6 +7,7 @@
 --                     reads what's inside as code, so nothing renders there
 --   setext headings  (# and ##)  Title over === or --- is a paragraph
 --   **x** and __x__  plain text, their marks showing
+--   ~~x~~            (--x--)  plain text too
 --
 -- and emphasis is *bold* and _italic_ (markdown reads * and _ both as italic,
 -- and ** and __ both as bold).
@@ -66,6 +67,7 @@ function M.setup()
   local inline = without("markdown_inline", "highlights", {
     "%(emphasis%) @markup%.italic%s*\n",
     "%(strong_emphasis%) @markup%.strong%s*\n",
+    "%(strikethrough%) @markup%.strikethrough%s*\n",
     "%(%[%s*%(code_span_delimiter%)%s*%(emphasis_delimiter%)%s*%] @conceal%s*%(#set! conceal \"\"%)%)",
   })
   set("markdown_inline", "highlights", inline and (inline .. "\n" .. EMPHASIS))

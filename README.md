@@ -6,19 +6,19 @@ Early development: expect changes.
 
 ## The format
 
-| Write                               | Shows                                                       |
-| ----------------------------------- | ----------------------------------------------------------- |
-| `>> note` … `<<`                    | a callout (also `tip`, `important`, `warning`, `caution`)   |
-| `>> python` … `<<`                  | highlighted code (also `c`, `cpp`, `java`, `rust`, `ocaml`) |
-| `>> latex` … `<<`                   | typeset formulas, one per line                              |
-| `>> mermaid` … `<<`                 | a mermaid diagram                                           |
-| `>> boxed` … `<<`                   | its lines in a box                                          |
-| `#` `##`                            | larger headings, drawn as images                            |
-| `###` to `######`                   | headings on a colored bar                                   |
-| `-` `1.` `- [ ]` `>` `---`          | bullets, numbers, checkboxes, quote bars, a line            |
-| `*bold*` `_italic_` `==highlight==` | bold, italic, highlighted                                   |
-| `![caption](picture.png)`           | the picture, centered, with its caption                     |
-| `--` `"quotes"` `1/2` `(c) 2026`    | — “quotes” ½ ©                                              |
+| Write                                            | Shows                                                       |
+| ------------------------------------------------ | ----------------------------------------------------------- |
+| `>> note` … `<<`                                 | a callout (also `tip`, `important`, `warning`, `caution`)   |
+| `>> python` … `<<`                               | highlighted code (also `c`, `cpp`, `java`, `rust`, `ocaml`) |
+| `>> latex` … `<<`                                | typeset formulas, one per line                              |
+| `>> mermaid` … `<<`                              | a mermaid diagram                                           |
+| `>> boxed` … `<<`                                | its lines in a box                                          |
+| `#` `##`                                         | larger headings, drawn as images                            |
+| `###` to `######`                                | headings on a colored bar                                   |
+| `-` `1.` `- [ ]` `>` `---`                       | bullets, numbers, checkboxes, quote bars, a line            |
+| `*bold*` `_italic_` `==highlight==` `--struck--` | bold, italic, highlighted, struck through                   |
+| `![caption](picture.png)`                        | the picture, centered, with its caption                     |
+| `--` `"quotes"` `1/2` `(c) 2026`                 | — “quotes” ½ ©                                              |
 
 Paragraphs are justified, a breadcrumb at the top of the window shows the
 headings above the cursor, and the line under the cursor shows as typed. Only
@@ -26,8 +26,8 @@ markdown files are rendered: not other buffers holding markdown, such as LSP
 hover popups.
 
 Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
-```` ``` ```` code blocks, `$$` math, setext headings, `**bold**` and
-`__bold__`. Tables show as typed.
+```` ``` ```` code blocks, `$$` math, setext headings, `**bold**`,
+`__bold__` and `~~struck~~`. Tables show as typed.
 
 ## Commands
 

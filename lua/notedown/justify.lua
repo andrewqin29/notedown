@@ -18,7 +18,7 @@
 -- Only plain paragraphs, in >> note blocks too: not lists, quotes, headings,
 -- tables, indented lines, >> code, latex or mermaid blocks, and not lines with
 -- markup whose rendered width differs from its text (emphasis, code, links,
--- math, ==highlights==, HTML). The line under the cursor shows as typed.
+-- math, ==highlights==, --strikethroughs--, HTML). The line under the cursor shows as typed.
 -- Called by render.lua on every render.
 
 local M = {}
@@ -33,6 +33,7 @@ local function eligible(line)
     and not line:match("^[-*+]%s") and not line:match("^%d+[.)]%s")
     and not line:match("^#") and not line:match("^>")
     and not line:find(MARKUP) and not line:find("==", 1, true)
+    and #require("notedown.markdown").strikes(line) == 0
 end
 
 -- The line as tokens nvim may break after: a word up to a space, or up to a

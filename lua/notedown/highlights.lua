@@ -60,8 +60,9 @@ function M.define()
     end
   end
 
-  -- ==highlights==, bright yellow; picture captions, dim and italic.
+  -- ==highlights==, bright yellow; --strikethroughs--; picture captions, dim and italic.
   vim.api.nvim_set_hl(0, "NotedownHighlight", { bg = "#ffd700", fg = "#000000" })
+  vim.api.nvim_set_hl(0, "NotedownStrikethrough", { strikethrough = true })
   vim.api.nvim_set_hl(0, "NotedownImageCaption", { fg = get("Comment").fg, italic = true })
   -- >> boxed: white text, the border in the editor's text color.
   vim.api.nvim_set_hl(0, "NotedownBoxText", { fg = "#ffffff" })

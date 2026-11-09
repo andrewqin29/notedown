@@ -16,7 +16,8 @@
 -- The line under the cursor shows what was typed.
 --
 -- Not in code (fenced, inline, or >> code blocks), math, "---" and longer runs,
--- table borders, HTML, or what looks like an option ("--help": "--" after a
+-- table borders, HTML, the marks of a --strikethrough-- (markdown.lua), or
+-- what looks like an option ("--help": "--" after a
 -- space or the line start and right before a letter or digit). Called by
 -- render.lua on every render.
 
@@ -54,6 +55,10 @@ local function replacements(line)
   end
 
   -- Dashes.
+  local struck = {}
+  for _, strike in ipairs(require("notedown.markdown").strikes(line)) do
+    struck[strike[1]], struck[strike[2] - 2] = true, true
+  end
   local start = 1
   while true do
     local pos = line:find("--", start, true)
@@ -61,7 +66,8 @@ local function replacements(line)
     local before, after = line:sub(pos - 1, pos - 1), line:sub(pos + 2, pos + 2)
     if before ~= "-" and after ~= "-" and after ~= ">"
         and not (before == "!" and line:sub(pos - 2, pos - 2) == "<")
-        and not ((pos == 1 or before:match("%s")) and after:match("%w")) then
+        and not ((pos == 1 or before:match("%s")) and after:match("%w"))
+        and not struck[pos] then
       put(pos, 2, "——")
     end
     start = pos + 2

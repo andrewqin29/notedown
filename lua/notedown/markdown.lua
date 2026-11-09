@@ -8,6 +8,8 @@
 --   > quotes     a bar for each >, on wrapped lines too
 --   ---          a line across the window
 --   ==text==     highlighted
+--   --text--     struck through: the -- right against the text, so "a -- b"
+--                stays two dashes (typography.lua) and --help an option
 --
 -- None of it in >> blocks that aren't markdown (code, latex, mermaid) or on a
 -- block's >> and << lines, and no headings in callouts (blocks.lua). In a
@@ -42,7 +44,7 @@ local BLOCK_QUERY = [[
   (block_continuation) @continuation
   (thematic_break) @dash
 ]]
-local INLINE_QUERY = [[((inline) @inline (#lua-match? @inline "==[^=]+=="))]]
+local INLINE_QUERY = [[(inline) @inline]]
 
 -- How many of node and its ancestors are of the type, and the outermost one.
 local function nesting(node, type)
@@ -185,22 +187,51 @@ local function locate(start_row, start_col, text, offset)
   return start_row + newlines, #before:match("[^\n]*$")
 end
 
-local function highlights(buf, node, add)
+-- Each --text-- in the text, as { from, to }: the bytes (1-based) where its
+-- opening -- starts and after its closing -- ends. Like markdown's emphasis,
+-- the opening -- is right before the text and not after a letter or digit,
+-- the closing one right after the text and not before one, and the text has no
+-- -- in it; all on one line. So "cup--or", "a -- b" and "--help" are left
+-- alone (typography.lua draws them as dashes, or leaves them).
+function M.strikes(text)
+  local list = {}
+  local start = 1
+  while true do
+    local from = text:find("%-%-[^%s%-]", start)
+    if not from then break end
+    start = from + 2
+    if not text:sub(from - 1, from - 1):match("[%w%-]") then
+      local close = text:find("--", from + 2, true)
+      if close and not text:sub(from, close):find("\n")
+          and not text:sub(close - 1, close - 1):match("%s")
+          and not text:sub(close + 2, close + 2):match("[%w%-]") then
+        list[#list + 1] = { from, close + 2 }
+        start = close + 2
+      end
+    end
+  end
+  return list
+end
+
+-- ==highlights== and --strikethroughs--: the marks hidden, the text colored.
+local function inline_marks(buf, scan, node, add)
   local text = vim.treesitter.get_node_text(node, buf)
   local start_row, start_col = node:range()
   local function top_level(row, col)
     local at = vim.treesitter.get_node({ bufnr = buf, pos = { row, col }, ignore_injections = false })
     return at and at:type() == "inline"
   end
-  for from, to in text:gmatch("()==[^=]+==()") do
+  local function mark(from, to, group)
     local row, col = locate(start_row, start_col, text, from - 1)
     local end_row, end_col = locate(start_row, start_col, text, to - 1)
-    if top_level(row, col) and top_level(end_row, end_col) then
+    if not scan.verbatim[row] and not scan.verbatim[end_row] and top_level(row, col) and top_level(end_row, end_col) then
       add(row, col, true, { end_col = col + 2, conceal = "" })
       add(end_row, end_col - 2, true, { end_col = end_col, conceal = "" })
-      add(row, col, false, { end_row = end_row, end_col = end_col, hl_group = "NotedownHighlight" })
+      add(row, col, false, { end_row = end_row, end_col = end_col, hl_group = group })
     end
   end
+  for from, to in text:gmatch("()==[^=]+==()") do mark(from, to, "NotedownHighlight") end
+  for _, strike in ipairs(M.strikes(text)) do mark(strike[1], strike[2], "NotedownStrikethrough") end
 end
 
 function M.marks(buf, scan, add)
@@ -234,7 +265,8 @@ function M.marks(buf, scan, add)
     elseif lang == "markdown_inline" then
       local q = query("markdown_inline", INLINE_QUERY)
       for _, node in q:iter_captures(tree:root(), buf) do
-        if not node:has_error() and not scan.verbatim[(node:range())] then highlights(buf, node, add) end
+        -- (each mark checks its own rows: a paragraph can start on a block's <<)
+        if not node:has_error() then inline_marks(buf, scan, node, add) end
       end
     end
   end)

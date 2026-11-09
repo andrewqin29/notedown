@@ -29,6 +29,7 @@
 
 Some *bold*, _italic_, **not bold**, __not italic__, `code` and ==highlighted== text.
 Not highlighted: `==in code==` and *bold ==inside== bold*.
+Some --struck-- text, ~~not struck~~, a -- dash and --help.
 
 > [!NOTE]
 > a plain quote: callouts are >> blocks

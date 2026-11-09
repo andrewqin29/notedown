@@ -49,6 +49,28 @@ t.test("a block's lines show as typed while the cursor is in it", function()
   t.eq(vim.list_slice(t.body(), 1, 3), { "  python", "x = 1", "<<" })
 end)
 
+t.test("--text-- is struck through", function()
+  local markdown = require("notedown.markdown")
+  local function struck(text)
+    return vim.tbl_map(function(s) return text:sub(s[1], s[2] - 1) end, markdown.strikes(text))
+  end
+  t.eq(struck("a --b-- and --c d-- e"), { "--b--", "--c d--" })
+  t.eq(struck("x -- y -- z, --help, a --- b ---, --x-- --- y"), { "--x--" })
+  t.eq(struck("--a\nb--"), {})
+  local buf = t.open({ "Some --struck-- text", "`--code--`" })
+  t.cursor(2)
+  t.eq(t.body()[1], "Some struck text")
+  t.ok(table.concat(t.marks(buf), "\n"):find("NotedownStrikethrough", 1, true))
+  t.cursor(1)
+  t.eq(t.body()[2], "--code--")
+end)
+
+t.test("marks on the line after a block's <<, which markdown reads as one paragraph", function()
+  t.open({ ">> boxed", "x", "<<", "--struck-- and ==marked==", "" })
+  t.cursor(5)
+  t.eq(t.body()[4], "struck and marked")
+end)
+
 t.test("a box stays square around formatted text, and with the cursor in it", function()
   t.open({ ">> boxed", "A *Tour* of _Systems_", "## A heading", "`code` and ==marked==", "<<" })
   local box = {

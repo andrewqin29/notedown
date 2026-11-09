@@ -36,6 +36,10 @@ t.test("not options, longer runs, arrows or html comments", function()
   end
 end)
 
+t.test("not the marks of a --strikethrough--", function()
+  t.eq(typeset("a --struck-- word -- then"), "a --struck-- word —— then")
+end)
+
 t.test("fractions, not dates, paths or decimals", function()
   t.eq(typeset("add 1/2 cup or 15/16"), "add ¹⁄₂ cup or ¹⁵⁄₁₆")
   for _, line in ipairs({ "11/08/2026", "src/1/2", "1/2.5", "a1/2" }) do
