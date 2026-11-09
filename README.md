@@ -21,7 +21,9 @@ Early development: expect changes.
 | `--` `"quotes"` `1/2` `(c) 2026`                 | — “quotes” ½ ©                                              |
 
 Paragraphs are justified, a breadcrumb at the top of the window shows the
-headings above the cursor, and the line under the cursor shows as typed. Only
+headings above the cursor, and the line under the cursor shows as typed. In
+insert mode the whole block you're editing (paragraph, list, `>>` block)
+shows as typed, and the rest of the note stays rendered. Only
 markdown files are rendered: not other buffers holding markdown, such as LSP
 hover popups.
 

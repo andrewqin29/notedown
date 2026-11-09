@@ -8,19 +8,36 @@
 -- line under the cursor shows as typed. Marks that only color (a note block's
 -- tint, a ==highlight==) aren't typed and stay.
 --
--- Notes show rendered in normal, command-line and terminal mode, and as typed
--- in the others (insert, visual), in diff windows and when scrolled sideways.
+-- In insert mode the block being edited shows as typed, and the rest of the
+-- note stays rendered: the editing zone. It's the >> block or fence the cursor
+-- is in, or else the lines around it up to blank lines (a paragraph, a list),
+-- worked out when insert mode starts. It only grows while you type (lines added
+-- at its edges are in it), so nothing around you changes from rendered to typed
+-- mid-sentence; moving the cursor out of it starts a new one where it lands.
+-- Its colors (a callout's tint, ==highlights==) stay.
+--
+-- Notes show rendered in normal, command-line, terminal, insert and replace
+-- mode, and as typed in visual mode, in diff windows and when scrolled
+-- sideways.
 
 local M = {}
 
 local ns = vim.api.nvim_create_namespace("notedown")
 
--- Modes that show a note rendered (:h mode()).
-local MODES = { n = true, c = true, t = true }
+-- Modes that show a note rendered, by the first letter of mode(true): normal
+-- (and operator-pending), command-line, terminal, insert and replace.
+local MODES = { n = true, c = true, t = true, i = true, R = true }
+-- Modes that type, and so have an editing zone.
+local TYPING = { i = true, R = true }
 
 -- After a change: render at once, then at most once per this many ms while
--- changes keep coming.
-local DEBOUNCE = 100
+-- changes keep coming, and while typing in insert mode at most once per
+-- DEBOUNCE_TYPING (marks move with the text in between).
+local DEBOUNCE, DEBOUNCE_TYPING = 100, 300
+
+-- The editing zone's extent, as an extmark from its first line to the end of
+-- its last, which widens as text is put in at either end.
+local zone_ns = vim.api.nvim_create_namespace("notedown.zone")
 
 -- Window options while a note shows rendered. Otherwise each goes back to
 -- its global value from when notedown started.
@@ -42,10 +59,10 @@ local defaults = {}
 M.enabled = true
 
 -- By buffer: { marks, rows, hidden, shown, tick, width, timer, pending,
--- everywhere }. rows has the typed marks on each row; hidden, the ones given
--- way for the cursor; shown, whether the rest are placed. tick and width are
--- what the marks were worked out for. everywhere is reading mode's (no line
--- shows as typed).
+-- everywhere, zone }. rows has the typed marks on each row; hidden, the ones
+-- given way for the cursor; shown, whether the rest are placed. tick and width
+-- are what the marks were worked out for. everywhere is reading mode's (no line
+-- shows as typed). zone is the editing zone's extmark, in insert mode.
 local buffers = {}
 
 local function show(buf, mark)
@@ -86,6 +103,46 @@ local function marks(buf)
   return list, rows
 end
 
+-- The rows of the block the row is in: its >> block or fence, else the lines
+-- around it up to blank lines, headings and blocks; a blank line or a heading
+-- on its own.
+local function block_rows(buf, row)
+  local scan = require("notedown.blocks").scan(buf)
+  for _, block in ipairs(scan.blocks) do
+    if row >= block.first and row <= block.last then return block.first, block.last end
+  end
+  local lines = scan.lines
+  local function joins(r)
+    local line = lines[r + 1]
+    return line and line:find("%S") and not line:find("^#+%s") and not scan.block[r]
+      and (scan.fenced[r] or false) == (scan.fenced[row] or false)
+  end
+  if not joins(row) then return row, row end
+  local first, last = row, row
+  while first > 0 and joins(first - 1) do first = first - 1 end
+  while joins(last + 1) do last = last + 1 end
+  return first, last
+end
+
+-- The rows that show as typed in insert mode, made or kept for the cursor's
+-- row (see the top of this file).
+local function zone(buf, state, row)
+  if state.zone then
+    local mark = vim.api.nvim_buf_get_extmark_by_id(buf, zone_ns, state.zone, { details = true })
+    if mark[1] and row >= mark[1] and row <= mark[3].end_row then return mark[1], mark[3].end_row end
+  end
+  local first, last = block_rows(buf, row)
+  vim.api.nvim_buf_clear_namespace(buf, zone_ns, 0, -1)
+  local line = vim.api.nvim_buf_get_lines(buf, last, last + 1, false)[1] or ""
+  state.zone = vim.api.nvim_buf_set_extmark(buf, zone_ns, first, 0, {
+    end_row = last,
+    end_col = #line,
+    right_gravity = false,
+    end_right_gravity = true,
+  })
+  return first, last
+end
+
 local function set_option(win, name, value)
   if vim.api.nvim_get_option_value(name, { scope = "local", win = win }) ~= value then
     vim.api.nvim_set_option_value(name, value, { scope = "local", win = win })
@@ -98,8 +155,9 @@ local function draw(buf)
   local win = require("notedown.window")(buf)
   if not win then return end
 
+  local mode = vim.fn.mode(true):sub(1, 1)
   local rendered = M.enabled
-    and MODES[vim.fn.mode(true)]
+    and MODES[mode]
     and vim.api.nvim_win_call(win, vim.fn.winsaveview).leftcol == 0
     and not vim.wo[win].diff
   for _, w in ipairs(vim.fn.win_findbuf(buf)) do
@@ -113,6 +171,12 @@ local function draw(buf)
       end
       set_option(w, name, value)
     end
+  end
+
+  local typing = rendered and TYPING[mode] and not state.everywhere
+  if not typing and state.zone then
+    vim.api.nvim_buf_clear_namespace(buf, zone_ns, 0, -1)
+    state.zone = nil
   end
 
   if not rendered then
@@ -131,14 +195,22 @@ local function draw(buf)
     state.tick, state.width, state.shown = tick, width, false
   end
 
-  -- The typed marks on the cursor's line, in the buffer you're in, give way.
-  local row
+  -- The typed marks on the cursor's line, or in insert mode its editing zone,
+  -- in the buffer you're in, give way.
+  local hidden, set = {}, {}
   if not state.everywhere and buf == vim.api.nvim_get_current_buf() then
-    row = vim.api.nvim_win_get_cursor(win)[1] - 1
+    local row = vim.api.nvim_win_get_cursor(win)[1] - 1
+    local first, last = row, row
+    if typing then first, last = zone(buf, state, row) end
+    for r = first, last do
+      for _, mark in ipairs(state.rows[r] or {}) do
+        if not set[mark] then
+          set[mark] = true
+          hidden[#hidden + 1] = mark
+        end
+      end
+    end
   end
-  local hidden = row and state.rows[row] or {}
-  local set = {}
-  for _, mark in ipairs(hidden) do set[mark] = true end
   if not state.shown then
     for _, mark in ipairs(state.marks) do
       if not set[mark] then show(buf, mark) end
@@ -164,7 +236,8 @@ function M.request(buf)
       state.pending = true
       return
     end
-    state.timer:start(DEBOUNCE, 0, function()
+    local typing = TYPING[vim.fn.mode(true):sub(1, 1)]
+    state.timer:start(typing and DEBOUNCE_TYPING or DEBOUNCE, 0, function()
       if state.pending then
         state.pending = false
         vim.schedule(function() draw(buf) end)
@@ -188,7 +261,8 @@ function M.attach(buf)
   end
   buffers[buf] = { marks = {}, rows = {}, timer = assert(vim.uv.new_timer()) }
   vim.api.nvim_create_autocmd(
-    { "BufWinEnter", "BufLeave", "CursorMoved", "ModeChanged", "TextChanged", "DiffUpdated" },
+    { "BufWinEnter", "BufLeave", "CursorMoved", "CursorMovedI", "ModeChanged", "TextChanged", "TextChangedI",
+      "DiffUpdated" },
     { group = group, buffer = buf, callback = function() M.request(buf) end }
   )
   vim.api.nvim_create_autocmd("BufWipeout", {
