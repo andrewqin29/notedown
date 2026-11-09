@@ -9,7 +9,6 @@ local M = {}
 ---@type table<string, render.md.Handler>
 M.builtin = {
     html = require('render-markdown.handler.html'),
-    latex = require('render-markdown.handler.latex'),
     markdown = require('render-markdown.handler.markdown'),
     markdown_inline = require('render-markdown.handler.markdown_inline'),
     yaml = require('render-markdown.handler.yaml'),
@@ -39,7 +38,7 @@ function M.run(context, parser)
 
     -- languages that run later will have more complete state
     local languages = vim.tbl_keys(language_roots) ---@type string[]
-    local order = { latex = 10, markdown = 100 } ---@type table<string, integer>
+    local order = { markdown = 100 } ---@type table<string, integer>
     iter.list.sort(languages, function(language)
         return order[language] or 0
     end)

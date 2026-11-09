@@ -56,7 +56,7 @@ M.colors = {
     -- Pipe tables
     TableHead       = '@markup.heading',
     TableRow        = 'Normal',
-    -- Callouts
+    -- Status colors (used by notes' >> blocks)
     Success         = 'DiagnosticOk',
     Info            = 'DiagnosticInfo',
     Hint            = 'DiagnosticHint',

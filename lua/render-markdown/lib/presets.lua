@@ -29,11 +29,6 @@ function M.config(user)
         ---https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/extras/lang/markdown.lua
         [Preset.lazy] = {
             file_types = { 'markdown', 'norg', 'rmd', 'org', 'codecompanion' },
-            code = {
-                sign = false,
-                width = 'block',
-                right_pad = 1,
-            },
             heading = {
                 sign = false,
                 icons = {},
@@ -55,7 +50,6 @@ function M.partial(user)
     end
     ---@type render.md.partial.UserConfig
     return {
-        code = M.code(user),
         pipe_table = M.pipe_table(user),
         win_options = M.win_options(user),
     }
@@ -88,19 +82,6 @@ function M.overrides(user)
 
     ---@type render.md.UserConfig
     return { overrides = vim.tbl_count(overrides) > 0 and overrides or nil }
-end
-
----@private
----@param user render.md.partial.UserConfig
----@return render.md.code.UserConfig?
-function M.code(user)
-    ---@type table<render.md.code.Style?, render.md.code.UserConfig?>
-    local styles = {
-        ['none'] = { enabled = false },
-        ['normal'] = { language = false },
-        ['language'] = { disable_background = true, inline = false },
-    }
-    return styles[(user.code or {}).style]
 end
 
 ---@private

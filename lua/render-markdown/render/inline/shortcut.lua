@@ -10,11 +10,6 @@ Render.__index = Render
 ---@protected
 ---@return boolean
 function Render:setup()
-    local callout = self.context.config.resolved:callout(self.node)
-    if callout then
-        self.context.callout:set(self.node, callout)
-        return false
-    end
     local checkbox = self.context.config.resolved:checkbox(self.node)
     if checkbox then
         if self.node:after() == ' ' then

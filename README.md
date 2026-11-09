@@ -1,4 +1,49 @@
-# render-markdown.nvim
+# render-markdown.nvim (notes fork)
+
+A fork of [MeanderingProgrammer/render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim)
+that renders a note format of its own, built on markdown.
+
+> [!IMPORTANT]
+> This fork is in early development. Its README below is mostly upstream's and
+> still describes features the fork has removed; the note format is described
+> in this section.
+
+## The note format
+
+| Write                              | Shows                                                        |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `>> note` … `<<`                   | a callout (also `tip`, `important`, `warning`, `caution`)    |
+| `>> python` … `<<`                 | highlighted code (also `c`, `cpp`, `java`, `rust`, `ocaml`)  |
+| `>> latex` … `<<`                  | typeset formulas, one per line                               |
+| `>> mermaid` … `<<`                | a mermaid diagram                                            |
+| `>> boxed` … `<<`                  | its lines in a box                                           |
+| `*bold*` `_italic_` `==highlight==` | bold, italic, highlighted                                   |
+| `#` `##`                           | larger headings (drawn as images)                            |
+| `![caption](picture.png)`          | the picture, centered, with its caption                      |
+| `--` `"quotes"` `1/2` `(c) 2026`   | — “quotes” ½ ©                                               |
+
+Paragraphs are justified. `:toc` (or `gO`) opens a table of contents, `:read`
+toggles reading mode, and a breadcrumb at the top of the window shows where you
+are. The code for all of this is in `lua/render-markdown/notes/`.
+
+Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
+```` ``` ```` code blocks, `$$` math, setext headings, `**bold**` and `__bold__`.
+
+Images (formulas, diagrams, headings, pictures) need
+[snacks.nvim](https://github.com/folke/snacks.nvim) with `image = { enabled = true }`,
+in a terminal with kitty's graphics protocol (Ghostty, kitty). Formulas need
+`pdflatex` and ImageMagick; diagrams need
+[mermaid-cli](https://github.com/mermaid-js/mermaid-cli) (`mmdc`) and Chrome.
+
+## Maintaining the fork
+
+- `upstream` is the original repository. To bring in its changes:
+  `git fetch upstream && git merge upstream/main`.
+- Upstream's tests run with `just test`; they need plenary.nvim, nvim-treesitter
+  and mini.icons in nvim's data directory. Tests for the removed features were
+  deleted; some others still expect removed behavior and need updating.
+
+---
 
 Improve viewing Markdown in Neovim
 

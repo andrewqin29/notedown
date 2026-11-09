@@ -10,7 +10,6 @@ local M = {}
 function M.parse(ctx)
     -- stylua: ignore
     local query = ts.parse('markdown_inline', [[
-        (code_span) @code
 
         ((inline) @highlight
             (#lua-match? @highlight "==[^=]+=="))
@@ -27,7 +26,6 @@ function M.parse(ctx)
     ]])
     ---@type table<string, render.md.Render>
     local renders = {
-        code = require('render-markdown.render.inline.code'),
         highlight = require('render-markdown.render.inline.highlight'),
         link = require('render-markdown.render.inline.link'),
         shortcut = require('render-markdown.render.inline.shortcut'),

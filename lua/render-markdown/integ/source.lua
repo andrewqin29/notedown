@@ -60,14 +60,7 @@ function M.items(buf, row, col)
     local config = state.get(buf)
     local filter = state.completions.filter
     local prefix = line:sub(before, before) == ' ' and '' or ' '
-    if node.type == 'block_quote' then
-        local suffix = ''
-        for _, value in pairs(config.callout) do
-            if filter.callout(value) then
-                M.append(items, prefix, suffix, value.raw, value.rendered)
-            end
-        end
-    elseif node.type == 'list_item' then
+    if node.type == 'list_item' then
         local suffix = line:sub(after, after) == ' ' and '' or ' '
         local unchecked = config.checkbox.unchecked
         M.append(items, prefix, suffix, '[ ]', unchecked.icon, 'unchecked')

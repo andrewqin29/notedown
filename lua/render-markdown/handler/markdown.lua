@@ -10,8 +10,6 @@ local M = {}
 function M.parse(ctx)
     -- stylua: ignore
     local query = ts.parse('markdown', [[
-        (fenced_code_block) @code
-
         [
             (thematic_break)
             (minus_metadata)
@@ -22,10 +20,7 @@ function M.parse(ctx)
 
         (link_reference_definition (link_label) @footnote)
 
-        [
-            (atx_heading)
-            (setext_heading)
-        ] @heading
+        (atx_heading) @heading
 
         (list_item) @list
 
@@ -39,7 +34,6 @@ function M.parse(ctx)
     ]])
     ---@type table<string, render.md.Render>
     local renders = {
-        code = require('render-markdown.render.markdown.code'),
         dash = require('render-markdown.render.markdown.dash'),
         document = require('render-markdown.render.markdown.document'),
         footnote = require('render-markdown.render.common.footnote'),
@@ -57,7 +51,10 @@ function M.parse(ctx)
         assert(render, ('unhandled markdown capture: %s'):format(capture))
         render:execute(context, marks, node)
     end)
-    return marks:get()
+    -- the note format's blocks, typography and justification (notes/blocks.lua)
+    local result = marks:get()
+    vim.list_extend(result, require('render-markdown.notes.blocks').parse(ctx))
+    return result
 end
 
 return M

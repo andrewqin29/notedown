@@ -1,10 +1,8 @@
-local env = require('render-markdown.lib.env')
 local icons = require('render-markdown.lib.icons')
 local state = require('render-markdown.state')
 
 ---@alias render.md.health.Language
 ---| 'html'
----| 'latex'
 ---| 'markdown'
 ---| 'markdown_inline'
 ---| 'yaml'
@@ -33,16 +31,12 @@ function M.check()
 
     local config = state.get(0)
     local html = config.html
-    local latex = config.latex
     local yaml = config.yaml
 
     M.ts_info('markdown', true, true)
     M.ts_info('markdown_inline', true, false)
     if html.enabled then
         M.ts_info('html', false, false)
-    end
-    if latex.enabled then
-        M.ts_info('latex', false, false)
     end
     if yaml.enabled then
         M.ts_info('yaml', false, false)
@@ -54,19 +48,6 @@ function M.check()
         vim.health.ok('using: ' .. provider)
     else
         vim.health.warn('none installed')
-    end
-
-    local latex_works = false
-    if latex.enabled then
-        M.start('latex')
-        local cmds = env.commands(latex.converter)
-        if #cmds == 0 then
-            local message = 'none installed: ' .. vim.inspect(latex.converter)
-            vim.health.warn(message, M.disable('latex'))
-        else
-            latex_works = true
-            vim.health.ok('using: ' .. vim.inspect(cmds))
-        end
     end
 
     M.start('conflicts')
@@ -85,29 +66,6 @@ function M.check()
         })
         ]]
     end)
-    if latex_works then
-        M.plugin('snacks', function(snacks)
-            local image = snacks.config.image
-            if not image or not image.enabled then
-                return nil
-            end
-            if image.doc and image.doc.enabled == false then
-                return nil
-            end
-            if image.math and image.math.enabled == false then
-                return nil
-            end
-            return [[
-            disable latex math rendering in your snacks.nvim config
-            require("snacks").setup({
-                image = {
-                    enabled = true,
-                    math = { enabled = false },
-                },
-            })
-            ]]
-        end)
-    end
 end
 
 ---@private

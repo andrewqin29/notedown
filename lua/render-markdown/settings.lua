@@ -16,18 +16,13 @@ M.anti_conceal = {}
 ---@enum render.md.Element
 M.anti_conceal.element = {
     bullet = 'bullet',
-    callout = 'callout',
     check_icon = 'check_icon',
     check_scope = 'check_scope',
-    code_background = 'code_background',
-    code_border = 'code_border',
-    code_language = 'code_language',
     dash = 'dash',
     head_background = 'head_background',
     head_border = 'head_border',
     head_icon = 'head_icon',
     indent = 'indent',
-    latex = 'latex',
     link = 'link',
     quote = 'quote',
     sign = 'sign',
@@ -49,20 +44,16 @@ M.anti_conceal.default = {
     -- booleans to fix the behavior or string lists representing modes where anti conceal
     -- behavior will be ignored. Valid values are:
     --   bullet
-    --   callout
     --   check_icon, check_scope
-    --   code_background, code_border, code_language
     --   dash
     --   head_background, head_border, head_icon
     --   indent
-    --   latex
     --   link
     --   quote
     --   sign
     --   table_border
     --   virtual_lines
     ignore = {
-        code_background = true,
         indent = true,
         sign = true,
         virtual_lines = true,
@@ -210,74 +201,6 @@ end
 ---@class (exact) render.md.raw.Config
 ---@field raw string
 
----@class render.md.callout.Settings
-M.callout = {}
-
----@alias render.md.callout.Configs table<string, render.md.callout.Config>
-
----@class (exact) render.md.callout.Config: render.md.raw.Config
----@field rendered string
----@field highlight string
----@field quote_icon? string
----@field category? string
-
--- stylua: ignore
----@type render.md.callout.Configs
-M.callout.default = {
-    -- Callouts are a special instance of a 'block_quote' that start with a 'shortcut_link'.
-    -- The key is for healthcheck and to allow users to change its values, value type below.
-    -- | raw        | matched against the raw text of a 'shortcut_link', case insensitive |
-    -- | rendered   | replaces the 'raw' value when rendering                             |
-    -- | highlight  | highlight for the 'rendered' text and quote markers                 |
-    -- | quote_icon | optional override for quote.icon value for individual callout       |
-    -- | category   | optional metadata useful for filtering                              |
-
-    note      = { raw = '[!NOTE]',      rendered = '󰋽 Note',      highlight = 'RenderMarkdownInfo',    category = 'github'   },
-    tip       = { raw = '[!TIP]',       rendered = '󰌶 Tip',       highlight = 'RenderMarkdownSuccess', category = 'github'   },
-    important = { raw = '[!IMPORTANT]', rendered = '󰅾 Important', highlight = 'RenderMarkdownHint',    category = 'github'   },
-    warning   = { raw = '[!WARNING]',   rendered = '󰀪 Warning',   highlight = 'RenderMarkdownWarn',    category = 'github'   },
-    caution   = { raw = '[!CAUTION]',   rendered = '󰳦 Caution',   highlight = 'RenderMarkdownError',   category = 'github'   },
-    -- Obsidian: https://help.obsidian.md/Editing+and+formatting/Callouts
-    abstract  = { raw = '[!ABSTRACT]',  rendered = '󰨸 Abstract',  highlight = 'RenderMarkdownInfo',    category = 'obsidian' },
-    summary   = { raw = '[!SUMMARY]',   rendered = '󰨸 Summary',   highlight = 'RenderMarkdownInfo',    category = 'obsidian' },
-    tldr      = { raw = '[!TLDR]',      rendered = '󰨸 Tldr',      highlight = 'RenderMarkdownInfo',    category = 'obsidian' },
-    info      = { raw = '[!INFO]',      rendered = '󰋽 Info',      highlight = 'RenderMarkdownInfo',    category = 'obsidian' },
-    todo      = { raw = '[!TODO]',      rendered = '󰗡 Todo',      highlight = 'RenderMarkdownInfo',    category = 'obsidian' },
-    hint      = { raw = '[!HINT]',      rendered = '󰌶 Hint',      highlight = 'RenderMarkdownSuccess', category = 'obsidian' },
-    success   = { raw = '[!SUCCESS]',   rendered = '󰄬 Success',   highlight = 'RenderMarkdownSuccess', category = 'obsidian' },
-    check     = { raw = '[!CHECK]',     rendered = '󰄬 Check',     highlight = 'RenderMarkdownSuccess', category = 'obsidian' },
-    done      = { raw = '[!DONE]',      rendered = '󰄬 Done',      highlight = 'RenderMarkdownSuccess', category = 'obsidian' },
-    question  = { raw = '[!QUESTION]',  rendered = '󰘥 Question',  highlight = 'RenderMarkdownWarn',    category = 'obsidian' },
-    help      = { raw = '[!HELP]',      rendered = '󰘥 Help',      highlight = 'RenderMarkdownWarn',    category = 'obsidian' },
-    faq       = { raw = '[!FAQ]',       rendered = '󰘥 Faq',       highlight = 'RenderMarkdownWarn',    category = 'obsidian' },
-    attention = { raw = '[!ATTENTION]', rendered = '󰀪 Attention', highlight = 'RenderMarkdownWarn',    category = 'obsidian' },
-    failure   = { raw = '[!FAILURE]',   rendered = '󰅖 Failure',   highlight = 'RenderMarkdownError',   category = 'obsidian' },
-    fail      = { raw = '[!FAIL]',      rendered = '󰅖 Fail',      highlight = 'RenderMarkdownError',   category = 'obsidian' },
-    missing   = { raw = '[!MISSING]',   rendered = '󰅖 Missing',   highlight = 'RenderMarkdownError',   category = 'obsidian' },
-    danger    = { raw = '[!DANGER]',    rendered = '󱐌 Danger',    highlight = 'RenderMarkdownError',   category = 'obsidian' },
-    error     = { raw = '[!ERROR]',     rendered = '󱐌 Error',     highlight = 'RenderMarkdownError',   category = 'obsidian' },
-    bug       = { raw = '[!BUG]',       rendered = '󰨰 Bug',       highlight = 'RenderMarkdownError',   category = 'obsidian' },
-    example   = { raw = '[!EXAMPLE]',   rendered = '󰉹 Example',   highlight = 'RenderMarkdownHint' ,   category = 'obsidian' },
-    quote     = { raw = '[!QUOTE]',     rendered = '󱆨 Quote',     highlight = 'RenderMarkdownQuote',   category = 'obsidian' },
-    cite      = { raw = '[!CITE]',      rendered = '󱆨 Cite',      highlight = 'RenderMarkdownQuote',   category = 'obsidian' },
-}
-
----@return render.md.Schema
-function M.callout.schema()
-    ---@type render.md.Schema
-    local callout = {
-        record = {
-            raw = { type = 'string' },
-            rendered = { type = 'string' },
-            highlight = { type = 'string' },
-            quote_icon = { optional = true, type = 'string' },
-            category = { optional = true, type = 'string' },
-        },
-    }
-    ---@type render.md.Schema
-    return { map = { { type = 'string' }, callout } }
-end
-
 ---@class render.md.checkbox.Settings
 M.checkbox = {}
 
@@ -376,223 +299,6 @@ function M.checkbox.schema()
     })
 end
 
----@class render.md.code.Settings
-M.code = {}
-
----@class (exact) render.md.code.Config: render.md.base.Config
----@field sign boolean
----@field conceal_delimiters boolean
----@field language boolean
----@field position render.md.code.Position
----@field language_icon boolean
----@field language_name boolean
----@field language_info boolean
----@field language_pad number
----@field disable string[]
----@field disable_background boolean|string[]
----@field background_inset integer
----@field width render.md.code.Width
----@field left_margin number
----@field left_pad number
----@field right_pad number
----@field min_width integer
----@field border render.md.code.Border
----@field language_border string
----@field language_left string
----@field language_right string
----@field above string
----@field below string
----@field inline boolean
----@field inline_left string
----@field inline_right string
----@field inline_pad integer
----@field priority integer
----@field highlight string
----@field highlight_info string
----@field highlight_language? string
----@field highlight_border false|string
----@field highlight_fallback string
----@field highlight_inline string
----@field highlight_inline_left? string
----@field highlight_inline_right? string
----@field style render.md.code.Style
-
----@enum render.md.code.Position
-M.code.position = {
-    left = 'left',
-    right = 'right',
-    center = 'center',
-}
-
----@enum render.md.code.Width
-M.code.width = {
-    full = 'full',
-    block = 'block',
-}
-
----@enum render.md.code.Border
-M.code.border = {
-    hide = 'hide',
-    thin = 'thin',
-    thick = 'thick',
-    none = 'none',
-}
-
----@enum render.md.code.Style
-M.code.style = {
-    full = 'full',
-    normal = 'normal',
-    language = 'language',
-    none = 'none',
-}
-
----@type render.md.code.Config
-M.code.default = {
-    -- Turn on / off code block & inline code rendering.
-    enabled = true,
-    -- Additional modes to render code blocks.
-    render_modes = false,
-    -- Turn on / off sign column related rendering.
-    sign = true,
-    -- Whether to conceal nodes at the top and bottom of code blocks.
-    conceal_delimiters = true,
-    -- Turn on / off language heading related rendering.
-    language = true,
-    -- Determines where language icon is rendered.
-    -- | center | center of code block |
-    -- | right  | right of code block  |
-    -- | left   | left of code block   |
-    position = 'left',
-    -- Whether to include the language icon above code blocks.
-    language_icon = true,
-    -- Whether to include the language name above code blocks.
-    language_name = true,
-    -- Whether to include the language info above code blocks.
-    language_info = true,
-    -- Amount of padding to add around the language.
-    -- If a float < 1 is provided it is treated as a percentage of available window space.
-    language_pad = 0,
-    -- A list of language names for which rendering will be disabled.
-    disable = {},
-    -- A list of language names for which background highlighting will be disabled.
-    -- Likely because that language has background highlights itself.
-    -- Use a boolean to make behavior apply to all languages.
-    -- Borders above & below blocks will continue to be rendered.
-    disable_background = { 'diff' },
-    -- Number of lines from start/end to skip rendering background.
-    background_inset = 1,
-    -- Width of the code block background.
-    -- | block | width of the code block  |
-    -- | full  | full width of the window |
-    width = 'full',
-    -- Amount of margin to add to the left of code blocks.
-    -- If a float < 1 is provided it is treated as a percentage of available window space.
-    -- Margin available space is computed after accounting for padding.
-    left_margin = 0,
-    -- Amount of padding to add to the left of code blocks.
-    -- If a float < 1 is provided it is treated as a percentage of available window space.
-    left_pad = 0,
-    -- Amount of padding to add to the right of code blocks when width is 'block'.
-    -- If a float < 1 is provided it is treated as a percentage of available window space.
-    right_pad = 0,
-    -- Minimum width to use for code blocks when width is 'block'.
-    min_width = 0,
-    -- Determines how the top / bottom of code block are rendered.
-    -- | none  | do not render a border                               |
-    -- | thick | use the same highlight as the code body              |
-    -- | thin  | when lines are empty overlay the above & below icons |
-    -- | hide  | conceal lines unless language name or icon is added  |
-    border = 'hide',
-    -- Used above code blocks to fill remaining space around language.
-    language_border = '█',
-    -- Added to the left of language.
-    language_left = '',
-    -- Added to the right of language.
-    language_right = '',
-    -- Used above code blocks for thin border.
-    above = '▄',
-    -- Used below code blocks for thin border.
-    below = '▀',
-    -- Turn on / off inline code related rendering.
-    inline = true,
-    -- Icon to add to the left of inline code.
-    inline_left = '',
-    -- Icon to add to the right of inline code.
-    inline_right = '',
-    -- Padding to add to the left & right of inline code.
-    inline_pad = 0,
-    -- Priority to assign to code background highlight.
-    priority = 140,
-    -- Highlight for code blocks.
-    highlight = 'RenderMarkdownCode',
-    -- Highlight for code info section, after the language.
-    highlight_info = 'RenderMarkdownCodeInfo',
-    -- Highlight for language, overrides icon provider value.
-    highlight_language = nil,
-    -- Highlight for border, use false to add no highlight.
-    highlight_border = 'RenderMarkdownCodeBorder',
-    -- Highlight for language, used if icon provider does not have a value.
-    highlight_fallback = 'RenderMarkdownCodeFallback',
-    -- Highlight for inline code.
-    highlight_inline = 'RenderMarkdownCodeInline',
-    -- Highlight for inline code left icon, default to reverse of highlight_inline.
-    highlight_inline_left = nil,
-    -- Highlight for inline code right icon, default to reverse of highlight_inline.
-    highlight_inline_right = nil,
-    -- Determines how code blocks & inline code are rendered.
-    -- | none     | { enabled = false }                           |
-    -- | normal   | { language = false }                          |
-    -- | language | { disable_background = true, inline = false } |
-    -- | full     | uses all default values                       |
-    style = 'full',
-}
-
----@return render.md.Schema
-function M.code.schema()
-    return M.base.schema({
-        sign = { type = 'boolean' },
-        conceal_delimiters = { type = 'boolean' },
-        language = { type = 'boolean' },
-        position = { enum = M.code.position },
-        language_icon = { type = 'boolean' },
-        language_name = { type = 'boolean' },
-        language_info = { type = 'boolean' },
-        language_pad = { type = 'number' },
-        disable = { list = { type = 'string' } },
-        disable_background = {
-            union = { { list = { type = 'string' } }, { type = 'boolean' } },
-        },
-        background_inset = { type = 'number' },
-        width = { enum = M.code.width },
-        left_margin = { type = 'number' },
-        left_pad = { type = 'number' },
-        right_pad = { type = 'number' },
-        min_width = { type = 'number' },
-        border = { enum = M.code.border },
-        language_border = { type = 'string' },
-        language_left = { type = 'string' },
-        language_right = { type = 'string' },
-        above = { type = 'string' },
-        below = { type = 'string' },
-        inline = { type = 'boolean' },
-        inline_left = { type = 'string' },
-        inline_right = { type = 'string' },
-        inline_pad = { type = 'number' },
-        priority = { type = 'number' },
-        highlight = { type = 'string' },
-        highlight_info = { type = 'string' },
-        highlight_language = { optional = true, type = 'string' },
-        highlight_border = {
-            union = { { enum = { false } }, { type = 'string' } },
-        },
-        highlight_fallback = { type = 'string' },
-        highlight_inline = { type = 'string' },
-        highlight_inline_left = { optional = true, type = 'string' },
-        highlight_inline_right = { optional = true, type = 'string' },
-        style = { enum = M.code.style },
-    })
-end
-
 ---@class render.md.completions.Settings
 M.completions = {}
 
@@ -606,7 +312,6 @@ M.completions = {}
 ---@field enabled boolean
 
 ---@class (exact) render.md.completion.filter.Config
----@field callout fun(value: render.md.callout.Config): boolean
 ---@field checkbox fun(value: render.md.checkbox.custom.Config): boolean
 
 ---@type render.md.completions.Config
@@ -618,11 +323,6 @@ M.completions.default = {
     -- Settings for in-process language server completions
     lsp = { enabled = false },
     filter = {
-        callout = function()
-            -- example to exclude obsidian callouts
-            -- return value.category ~= 'obsidian'
-            return true
-        end,
         checkbox = function()
             return true
         end,
@@ -641,7 +341,6 @@ function M.completions.schema()
             lsp = completion,
             filter = {
                 record = {
-                    callout = { type = 'function' },
                     checkbox = { type = 'function' },
                 },
             },
@@ -786,7 +485,6 @@ M.heading = {}
 
 ---@class (exact) render.md.heading.Config: render.md.base.Config
 ---@field atx boolean
----@field setext boolean
 ---@field sign boolean
 ---@field icons render.md.heading.String
 ---@field position render.md.heading.Position
@@ -845,8 +543,6 @@ M.heading.default = {
     render_modes = false,
     -- Turn on / off atx heading rendering.
     atx = true,
-    -- Turn on / off setext heading rendering.
-    setext = true,
     -- Turn on / off sign column related rendering.
     sign = true,
     -- Replaces '#+' of 'atx_h._marker'.
@@ -938,7 +634,6 @@ function M.heading.schema()
     }
     return M.base.schema({
         atx = { type = 'boolean' },
-        setext = { type = 'boolean' },
         sign = { type = 'boolean' },
         icons = {
             union = { { list = { type = 'string' } }, { type = 'function' } },
@@ -1178,68 +873,6 @@ function M.inline_highlight.schema()
     return M.base.schema({
         highlight = { type = 'string' },
         custom = { map = { { type = 'string' }, custom } },
-    })
-end
-
----@class render.md.latex.Settings
-M.latex = {}
-
----@class (exact) render.md.latex.Config: render.md.base.Config
----@field converter string|string[]
----@field inline boolean
----@field block boolean
----@field highlight string
----@field position render.md.latex.Position
----@field top_pad integer
----@field bottom_pad integer
-
----@enum render.md.latex.Position
-M.latex.position = {
-    above = 'above',
-    below = 'below',
-    center = 'center',
-    replace = 'replace',
-}
-
----@type render.md.latex.Config
-M.latex.default = {
-    -- Turn on / off latex rendering.
-    enabled = true,
-    -- Additional modes to render latex.
-    render_modes = false,
-    -- Executable used to convert latex formula to rendered unicode.
-    -- If a list is provided the commands run in order until the first success.
-    converter = { 'utftex', 'latex2text' },
-    -- Render inline latex formulas.
-    inline = true,
-    -- Render block latex formulas.
-    block = true,
-    -- Highlight for latex blocks.
-    highlight = 'RenderMarkdownMath',
-    -- Determines where latex formula is rendered relative to block.
-    -- | above   | above latex block                               |
-    -- | below   | below latex block                               |
-    -- | center  | centered with latex block (must be single line) |
-    -- | replace | replace latex block with rendered formula       |
-    position = 'center',
-    -- Number of empty lines above latex blocks.
-    top_pad = 0,
-    -- Number of empty lines below latex blocks.
-    bottom_pad = 0,
-}
-
----@return render.md.Schema
-function M.latex.schema()
-    return M.base.schema({
-        converter = {
-            union = { { list = { type = 'string' } }, { type = 'string' } },
-        },
-        inline = { type = 'boolean' },
-        block = { type = 'boolean' },
-        highlight = { type = 'string' },
-        position = { enum = M.latex.position },
-        top_pad = { type = 'number' },
-        bottom_pad = { type = 'number' },
     })
 end
 
@@ -1487,8 +1120,8 @@ M.overrides.default = {
     -- More granular configuration mechanism, allows different aspects of buffers to have their own
     -- behavior. Values default to the top level configuration if no override is provided. Supports
     -- the following fields:
-    --   enabled, render_modes, debounce, anti_conceal, bullet, callout, checkbox, code, dash,
-    --   document, heading, html, indent, inline_highlight, latex, link, padding, paragraph,
+    --   enabled, render_modes, debounce, anti_conceal, bullet, checkbox, dash,
+    --   document, heading, html, indent, inline_highlight, link, padding, paragraph,
     --   pipe_table, quote, sign, win_options, yaml
 
     -- Override for different buflisted values, @see :h 'buflisted'.
@@ -1768,7 +1401,7 @@ M.quote = {}
 
 ---@type render.md.quote.Config
 M.quote.default = {
-    -- Turn on / off block quote & callout rendering.
+    -- Turn on / off block quote rendering.
     enabled = true,
     -- Additional modes to render quotes.
     render_modes = false,

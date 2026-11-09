@@ -1,10 +1,8 @@
 local Base = require('render-markdown.render.base')
 local list = require('render-markdown.lib.list')
-local str = require('render-markdown.lib.str')
 local ts = require('render-markdown.core.ts')
 
 ---@class render.md.quote.Data
----@field callout? render.md.request.callout.Value
 ---@field level integer
 ---@field icon string
 ---@field highlight string
@@ -24,15 +22,10 @@ function Render:setup()
         return false
     end
     local level = self.node:level_in('block_quote')
-    local callout = self.context.callout:get(self.node)
-    local config = callout and callout.config
-    local icon = config and config.quote_icon or self.config.icon
-    local highlight = config and config.highlight or self.config.highlight
     self.data = {
-        callout = callout,
         level = level,
-        icon = assert(list.cycle(icon, level)),
-        highlight = assert(list.cycle(highlight, level)),
+        icon = assert(list.cycle(self.config.icon, level)),
+        highlight = assert(list.cycle(self.config.highlight, level)),
         repeat_linebreak = self.config.repeat_linebreak or nil,
     }
     return true
@@ -40,43 +33,7 @@ end
 
 ---@protected
 function Render:run()
-    self:callout()
     self:markers()
-end
-
----@private
-function Render:callout()
-    local callout = self.data.callout
-    if not callout then
-        return
-    end
-    local node = callout.node
-    local config = callout.config
-    local title = Render.title(node, config)
-    self.marks:over(self.config, 'callout', node, {
-        virt_text = { { title or config.rendered, config.highlight } },
-        virt_text_pos = 'overlay',
-        conceal = title and '' or nil,
-    })
-end
-
----@private
----@param node render.md.Node
----@param config render.md.callout.Config
----@return string?
-function Render.title(node, config)
-    -- https://help.obsidian.md/Editing+and+formatting/Callouts#Change+the+title
-    local content = node:parent('inline')
-    if content then
-        local line = str.split(content.text, '\n', true)[1]
-        local prefix = config.raw:lower()
-        if #line > #prefix and vim.startswith(line:lower(), prefix) then
-            local icon = str.split(config.rendered, ' ', true)[1]
-            local title = vim.trim(line:sub(#prefix + 1))
-            return icon .. ' ' .. title
-        end
-    end
-    return nil
 end
 
 ---@private

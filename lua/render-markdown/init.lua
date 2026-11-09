@@ -11,16 +11,13 @@ local M = {}
 ---@field debounce integer
 ---@field anti_conceal render.md.anti.conceal.Config
 ---@field bullet render.md.bullet.Config
----@field callout render.md.callout.Configs
 ---@field checkbox render.md.checkbox.Config
----@field code render.md.code.Config
 ---@field dash render.md.dash.Config
 ---@field document render.md.document.Config
 ---@field heading render.md.heading.Config
 ---@field html render.md.html.Config
 ---@field indent render.md.indent.Config
 ---@field inline_highlight render.md.inline.highlight.Config
----@field latex render.md.latex.Config
 ---@field link render.md.link.Config
 ---@field padding render.md.padding.Config
 ---@field paragraph render.md.paragraph.Config
@@ -95,12 +92,10 @@ M.default = {
     patterns = settings.patterns.default,
     anti_conceal = settings.anti_conceal.default,
     padding = settings.padding.default,
-    latex = settings.latex.default,
     on = settings.on.default,
     completions = settings.completions.default,
     heading = settings.heading.default,
     paragraph = settings.paragraph.default,
-    code = settings.code.default,
     dash = settings.dash.default,
     document = settings.document.default,
     bullet = settings.bullet.default,
@@ -108,7 +103,6 @@ M.default = {
     quote = settings.quote.default,
     render = settings.render.default,
     pipe_table = settings.pipe_table.default,
-    callout = settings.callout.default,
     link = settings.link.default,
     sign = settings.sign.default,
     inline_highlight = settings.inline_highlight.default,
@@ -140,13 +134,12 @@ end
 ---@return render.md.Config
 function M.resolve_config(user)
     local preset = require('render-markdown.lib.presets').get(user)
-    local config = vim.tbl_deep_extend('force', M.default, preset, user)
+    -- the note format's settings (notes/init.lua) apply under presets and the user's
+    local notes = require('render-markdown.notes').defaults
+    local config = vim.tbl_deep_extend('force', M.default, notes, preset, user)
 
     -- override settings that are incompatible with neovim version
     local compat = require('render-markdown.lib.compat')
-    if config.code.border == 'hide' and not compat.has_11 then
-        config.code.border = 'thin'
-    end
     if config.pipe_table.wrap and not compat.has_11 then
         config.pipe_table.wrap = false
     end

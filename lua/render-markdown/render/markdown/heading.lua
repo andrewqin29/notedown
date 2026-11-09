@@ -47,10 +47,6 @@ function Render:setup()
         atx = true
         marker = assert(self.node:child_at(0), 'atx heading missing marker')
         level = str.char_count(marker.text, '#')
-    elseif self.node.type == 'setext_heading' and self.config.setext then
-        atx = false
-        marker = assert(self.node:child_at(1), 'ext heading missing underline')
-        level = marker.type == 'setext_h1_underline' and 1 or 2
     else
         return false
     end

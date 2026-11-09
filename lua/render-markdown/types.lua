@@ -8,16 +8,13 @@
 ---@field debounce? integer
 ---@field anti_conceal? render.md.anti.conceal.UserConfig
 ---@field bullet? render.md.bullet.UserConfig
----@field callout? render.md.callout.UserConfigs
 ---@field checkbox? render.md.checkbox.UserConfig
----@field code? render.md.code.UserConfig
 ---@field dash? render.md.dash.UserConfig
 ---@field document? render.md.document.UserConfig
 ---@field heading? render.md.heading.UserConfig
 ---@field html? render.md.html.UserConfig
 ---@field indent? render.md.indent.UserConfig
 ---@field inline_highlight? render.md.inline.highlight.UserConfig
----@field latex? render.md.latex.UserConfig
 ---@field link? render.md.link.UserConfig
 ---@field padding? render.md.padding.UserConfig
 ---@field paragraph? render.md.paragraph.UserConfig
@@ -66,14 +63,6 @@
 ---@class (exact) render.md.raw.UserConfig
 ---@field raw? string
 
----@alias render.md.callout.UserConfigs table<string, render.md.callout.UserConfig>
-
----@class (exact) render.md.callout.UserConfig: render.md.raw.UserConfig
----@field rendered? string
----@field highlight? string
----@field quote_icon? string
----@field category? string
-
 ---@class (exact) render.md.checkbox.UserConfig: render.md.base.UserConfig
 ---@field bullet? boolean
 ---@field left_pad? number
@@ -93,44 +82,6 @@
 ---@field highlight? string
 ---@field scope_highlight? string
 
----@class (exact) render.md.code.UserConfig: render.md.base.UserConfig
----@field sign? boolean
----@field conceal_delimiters? boolean
----@field language? boolean
----@field position? render.md.code.Position
----@field language_icon? boolean
----@field language_name? boolean
----@field language_info? boolean
----@field language_pad? number
----@field disable? string[]
----@field disable_background? boolean|string[]
----@field background_inset? integer
----@field width? render.md.code.Width
----@field left_margin? number
----@field left_pad? number
----@field right_pad? number
----@field min_width? integer
----@field border? render.md.code.Border
----@field language_border? string
----@field language_left? string
----@field language_right? string
----@field above? string
----@field below? string
----@field inline? boolean
----@field inline_left? string
----@field inline_right? string
----@field inline_pad? integer
----@field priority? integer
----@field highlight? string
----@field highlight_info? string
----@field highlight_language? string
----@field highlight_border? false|string
----@field highlight_fallback? string
----@field highlight_inline? string
----@field highlight_inline_left? string
----@field highlight_inline_right? string
----@field style? render.md.code.Style
-
 ---@class (exact) render.md.completions.UserConfig
 ---@field blink? render.md.completion.UserConfig
 ---@field coq? render.md.completion.UserConfig
@@ -141,7 +92,6 @@
 ---@field enabled? boolean
 
 ---@class (exact) render.md.completion.filter.UserConfig
----@field callout? fun(value: render.md.callout.UserConfig): boolean
 ---@field checkbox? fun(value: render.md.checkbox.custom.UserConfig): boolean
 
 ---@class (exact) render.md.dash.UserConfig: render.md.base.UserConfig
@@ -160,7 +110,6 @@
 
 ---@class (exact) render.md.heading.UserConfig: render.md.base.UserConfig
 ---@field atx? boolean
----@field setext? boolean
 ---@field sign? boolean
 ---@field icons? render.md.heading.String
 ---@field position? render.md.heading.Position
@@ -209,15 +158,6 @@
 ---@class (exact) render.md.inline.highlight.custom.UserConfig
 ---@field prefix? string
 ---@field highlight? string
-
----@class (exact) render.md.latex.UserConfig: render.md.base.UserConfig
----@field converter? string|string[]
----@field inline? boolean
----@field block? boolean
----@field highlight? string
----@field position? render.md.latex.Position
----@field top_pad? integer
----@field bottom_pad? integer
 
 ---@class (exact) render.md.link.UserConfig: render.md.base.UserConfig
 ---@field footnote? render.md.link.footnote.UserConfig

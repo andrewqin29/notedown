@@ -2,7 +2,6 @@ local env = require('render-markdown.lib.env')
 
 ---@class render.md.resolved.Config
 ---@field private modes render.md.Modes
----@field private callouts table<string, render.md.callout.Config>
 ---@field private checkboxes table<string, render.md.checkbox.custom.Config>
 local Resolved = {}
 Resolved.__index = Resolved
@@ -19,7 +18,6 @@ function Resolved.new(config)
             self.modes = env.mode.join(self.modes, component.render_modes)
         end
     end
-    self.callouts = Resolved.normalize(config.callout)
     self.checkboxes = Resolved.normalize(config.checkbox.custom)
     return self
 end
@@ -40,12 +38,6 @@ end
 ---@return boolean
 function Resolved:render(mode)
     return env.mode.is(mode, self.modes)
-end
-
----@param node render.md.Node
----@return render.md.callout.Config?
-function Resolved:callout(node)
-    return self.callouts[node.text:lower()]
 end
 
 ---@param node render.md.Node
