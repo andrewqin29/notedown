@@ -147,8 +147,8 @@ local function plan(line, width)
   return extra
 end
 
--- Marks for render.lua. Not in fences or lines that aren't markdown (scan,
--- blocks.lua). A line in a >> note block starts 2 columns in on every screen
+-- Marks for render.lua. Not in fences, lines that aren't markdown or boxed
+-- blocks (scan, blocks.lua). A line in a >> note block starts 2 columns in on every screen
 -- line, after its bar, and its added spaces are on the block's tint.
 function M.marks(buf, scan, add)
   local win = require("notedown.window")(buf)
@@ -161,7 +161,7 @@ function M.marks(buf, scan, add)
     local row = i - 1
     local note = scan.note[row]
     local indent = note and 2 or 0
-    if not scan.fenced[row] and not scan.verbatim[row] and eligible(line)
+    if not scan.fenced[row] and not scan.verbatim[row] and not scan.box[row] and eligible(line)
         and vim.api.nvim_strwidth(line) > width - indent - 1 then
       for _, space in ipairs(plan(line, width - indent)) do
         add(row, space[1], true, {

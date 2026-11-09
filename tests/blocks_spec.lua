@@ -60,12 +60,19 @@ t.test("rows: a callout's lines are markdown, its >> and << lines aren't", funct
   t.eq(s.note[1], blocks.kinds.note)
 end)
 
-t.test("rows: code, latex, mermaid and boxed blocks aren't markdown", function()
-  for _, tag in ipairs({ "python", "latex", "mermaid", "boxed" }) do
+t.test("rows: code, latex and mermaid blocks aren't markdown", function()
+  for _, tag in ipairs({ "python", "latex", "mermaid" }) do
     local s = scan({ ">> " .. tag, "a", "<<" })
     t.eq(rows(s.verbatim), { 0, 1, 2 }, tag)
     t.eq(rows(s.note), {}, tag)
   end
+end)
+
+t.test("rows: a boxed block's lines are markdown, apart from the box", function()
+  local s = scan({ ">> boxed", "a", "<<" })
+  t.eq(rows(s.verbatim), { 0, 2 })
+  t.eq(rows(s.box), { 1 })
+  t.eq(rows(s.note), {})
 end)
 
 t.test("the scan is kept until the buffer changes", function()

@@ -9,9 +9,11 @@
 --   ---          a line across the window
 --   ==text==     highlighted
 --
--- None of it in >> blocks that aren't markdown (code, latex, mermaid, boxed)
--- or on a block's >> and << lines, and no headings in any >> block
--- (blocks.lua). Called by render.lua on every render.
+-- None of it in >> blocks that aren't markdown (code, latex, mermaid) or on a
+-- block's >> and << lines, and no headings in callouts (blocks.lua). In a
+-- boxed block only what keeps the text's width: a heading is its text in the
+-- heading's color, and there are no lists, quotes or lines. Called by
+-- render.lua on every render.
 
 local M = {}
 
@@ -62,6 +64,17 @@ local function heading(node, add)
   add(row, col, true, { end_col = end_col + 1, conceal = "" })
   local bar = HEADING_BARS[end_col - col]
   if bar then add(row, 0, true, { line_hl_group = bar }) end
+end
+
+-- A heading in a boxed block: the #s and the space after them hidden, and
+-- its text in the heading's color, over the box's own text color.
+local function boxed_heading(buf, node, add)
+  local marker = node:named_child(0)
+  if not marker then return end
+  local row, col, _, end_col = marker:range()
+  local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1]
+  add(row, col, true, { end_col = end_col + 1, conceal = "" })
+  add(row, end_col, false, { end_col = #line, hl_group = "NotedownH" .. (end_col - col), priority = 201 })
 end
 
 -- The list item's position among the items before it.
@@ -203,8 +216,12 @@ function M.marks(buf, scan, add)
         if node:has_error() then
           -- (left as typed)
         elseif capture == "heading" then
-          if not scan.block[row] then heading(node, add) end
-        elseif not scan.verbatim[row] then
+          if scan.box[row] then
+            boxed_heading(buf, node, add)
+          elseif not scan.block[row] then
+            heading(node, add)
+          end
+        elseif not scan.verbatim[row] and not scan.box[row] then
           if capture == "item" then
             list_item(buf, node, add)
           elseif capture == "quote" or capture == "continuation" then

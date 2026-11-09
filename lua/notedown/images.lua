@@ -8,8 +8,10 @@
 --   ![alt](...)  the picture, centered, with its alt text as a caption
 --   $x$          inline math, typeset in the line
 --
--- Each hides the text under it, which shows while the cursor is on it. Where
--- images can't be shown, the text shows as typed.
+-- Each hides the text under it, which shows while the cursor is on it: a
+-- picture then shows below its line, the others not at all. A heading keeps
+-- its text while its line is being edited, and becomes an image again once
+-- the cursor leaves it. Where images can't be shown, the text shows as typed.
 --
 -- snacks finds images itself with tree-sitter, which can't see >> blocks, and
 -- doesn't center, caption or resize them, so this wraps parts of it (M.setup).
@@ -167,6 +169,23 @@ local function caption(placement)
   return alt and vim.trim(alt) ~= "" and vim.trim(alt) or nil
 end
 
+-- A placement's image rows as virtual lines below its last line, for a
+-- picture on the cursor's line: the ![...](...) shows as typed for editing,
+-- and the picture stays in view under it. (snacks hides the picture there,
+-- leaving blank rows.)
+local PLACEHOLDER = "\u{10EEEE}" -- each cell of an image is one
+local function below(placement, extmarks)
+  local rows = {}
+  for _, e in ipairs(extmarks) do
+    if e.virt_text and e.virt_text[1] and e.virt_text[1][1]:find(PLACEHOLDER, 1, true) then
+      rows[#rows + 1] = { { (" "):rep(e.virt_text_win_col or 0) }, e.virt_text[1] }
+    end
+    vim.list_extend(rows, e.virt_lines or {})
+  end
+  local range = placement.opts.range
+  return { { row = range[3] - 1, col = 0, virt_lines = rows, virt_text_hide = false, priority = 10001 } }
+end
+
 -- Send every image snacks has sent to the terminal again, and place each of
 -- its placements again. snacks keeps its images in a table private to its
 -- image module, reached here through the function that adds to it.
@@ -237,9 +256,36 @@ function M.setup()
     callback = function() resend_later() end,
   })
 
+  -- snacks' image updater of each buffer, to update it when notedown needs
+  -- (it updates itself only when the text changes or the window scrolls).
+  local updaters = {}
+  local inline = require("snacks.image.inline")
+  local inline_new = inline.new
+  inline.new = function(buf)
+    local updater = inline_new(buf)
+    updaters[buf] = updater
+    return updater
+  end
+
+  -- The row (1-based) of a heading left as text by buffer, while the cursor
+  -- is on it: snacks finds images again after every change, and each version
+  -- of a heading being edited would be a new image, drawn over the line.
+  local editing = {}
+  vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufLeave" }, {
+    group = vim.api.nvim_create_augroup("notedown.images.editing", { clear = true }),
+    callback = function(ev)
+      local row = editing[ev.buf]
+      if not row then return end
+      if ev.event == "BufLeave" or vim.api.nvim_win_get_cursor(0)[1] ~= row then
+        editing[ev.buf] = nil
+        if updaters[ev.buf] then updaters[ev.buf]:update() end
+      end
+    end,
+  })
+
   -- What snacks finds in a note: its pictures and inline math, the >> latex
   -- and >> mermaid blocks, and the # and ## headings outside fences and >>
-  -- blocks.
+  -- blocks, but not the one the cursor is on.
   local doc = require("snacks.image.doc")
   local find = doc.find
   doc.find = function(buf, cb, opts)
@@ -249,7 +295,15 @@ function M.setup()
         local from, to = opts and opts.from, opts and opts.to
         matches = own_matches(buf, matches)
         vim.list_extend(matches, block_matches(buf, scan, from, to))
-        vim.list_extend(matches, require("notedown.heading_images").matches(scan, from, to, window_width(buf)))
+        local cursor = buf == vim.api.nvim_get_current_buf() and vim.api.nvim_win_get_cursor(0)[1]
+        editing[buf] = nil
+        for _, heading in ipairs(require("notedown.heading_images").matches(scan, from, to, window_width(buf))) do
+          if heading.pos[1] == cursor then
+            editing[buf] = cursor
+          else
+            matches[#matches + 1] = heading
+          end
+        end
       end
       cb(matches)
     end, opts)
@@ -283,6 +337,7 @@ function M.setup()
   -- * center math, pictures and diagrams on lines of their own in the window;
   --   ones within a line of text stay put
   -- * put a picture's alt text under it as a caption, centered
+  -- * keep a picture shown below its line while the cursor is on it
   local render = placement._render
   placement._render = function(self, extmarks)
     local type = self.opts.type
@@ -299,10 +354,17 @@ function M.setup()
       end
     end
     local text = type == "image" and caption(self)
-    local below = text and vim.iter(extmarks):rev():find(function(e) return e.virt_lines end)
-    if below then
+    local under = text and vim.iter(extmarks):rev():find(function(e) return e.virt_lines end)
+    if under then
       local pad = math.max(0, math.floor(((window_width(self.buf) or 0) - vim.api.nvim_strwidth(text)) / 2))
-      table.insert(below.virt_lines, { { (" "):rep(pad) }, { text, "NotedownImageCaption" } })
+      table.insert(under.virt_lines, { { (" "):rep(pad) }, { text, "NotedownImageCaption" } })
+    end
+    if type == "image" and self.hidden then
+      -- drawn as if shown, so snacks doesn't blank it
+      self.hidden = false
+      render(self, below(self, extmarks))
+      self.hidden = true
+      return
     end
     render(self, extmarks)
     cover_marker(self)

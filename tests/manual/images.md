@@ -8,6 +8,8 @@ each item. The automated tests can't see images. The checks are in
 
 >> note
 The two headings above and below are images: # 1.5 times the text's size, ## 1.25 times, each two rows tall, in their heading colors. On the cursor's line a heading shows as text. Make the window narrow: a long heading wraps onto more rows instead of shrinking.
+
+Edit the heading below in insert mode: it stays text as you type, with no image flashing over it, and becomes an image again once the cursor leaves its line.
 <<
 
 ## A section heading long enough to wrap when the window is made narrow
@@ -39,7 +41,7 @@ The diagram above is centered, in colors matching the note, at most 20 rows tall
 ![a test picture](picture.png)
 
 >> note
-The picture above is centered, with "a test picture" under it as a dim, italic caption.
+The picture above is centered, with "a test picture" under it as a dim, italic caption. With the cursor on its line, the line shows as typed and the picture and caption stay, just below it.
 <<
 
 ## Resizing

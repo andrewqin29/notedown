@@ -121,8 +121,10 @@ end
 --   blocks    each block as { first, last, kind, title }, rows from 0
 --   block     rows of a block, its >> and << lines included
 --   verbatim  rows that aren't markdown: a block's >> and << lines, and the
---             lines of code, latex, mermaid and boxed blocks
+--             lines of code, latex and mermaid blocks
 --   note      rows inside a callout, to its kind
+--   box       rows inside a boxed block: markdown text, but nothing that
+--             would change how wide it is (lists, quotes, justifying)
 --   fenced    rows of ``` and ~~~ fences, delimiters included
 --
 -- A block shows only once its << is there, and not inside a fence. Inside a
@@ -134,7 +136,7 @@ function M.scan(buf)
   if scans[buf] and scans[buf].tick == tick then return scans[buf] end
 
   local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-  local scan = { tick = tick, lines = lines, blocks = {}, block = {}, verbatim = {}, note = {}, fenced = {} }
+  local scan = { tick = tick, lines = lines, blocks = {}, block = {}, verbatim = {}, note = {}, box = {}, fenced = {} }
   local open, fence
   for i, line in ipairs(lines) do
     local row = i - 1
@@ -161,12 +163,17 @@ function M.scan(buf)
     end
   end
   for _, block in ipairs(scan.blocks) do
-    local markdown = block.kind.icon ~= nil
+    local markdown = block.kind.icon ~= nil or block.kind.box
     for row = block.first, block.last do
       scan.block[row] = true
       local inside = row > block.first and row < block.last
-      if not (markdown and inside) then scan.verbatim[row] = true end
-      if markdown and inside then scan.note[row] = block.kind end
+      if not (markdown and inside) then
+        scan.verbatim[row] = true
+      elseif block.kind.box then
+        scan.box[row] = true
+      else
+        scan.note[row] = block.kind
+      end
     end
   end
   scans[buf] = scan
@@ -271,9 +278,11 @@ function M.marks(buf, scan, add)
       })
     elseif kind.box then
       -- A box around the lines: the top border over the >> line, "│ " before
-      -- each line and " │" after it (padded to the longest), and the bottom
-      -- border over the <<. The >> and << lines show as typed while the cursor
-      -- is on them.
+      -- each line and "│" after the longest at the same window column on
+      -- every line, and the bottom border over the <<. The lines are markdown
+      -- (markdown.lua), so some of their text can be hidden; measured as
+      -- typed, they still fit while the cursor is on them. The >> and << lines
+      -- show as typed while the cursor is on them.
       local width = vim.api.nvim_strwidth(lines[block.first + 1]) - 4
       for row = block.first + 1, block.last - 1 do
         width = math.max(width, vim.api.nvim_strwidth(lines[row + 1]))
@@ -293,10 +302,7 @@ function M.marks(buf, scan, add)
         if #line > 0 then
           add(row, 0, false, { end_col = #line, hl_group = "NotedownBoxText", priority = 200 })
         end
-        add(row, #line, false, {
-          virt_text = { { (" "):rep(width - vim.api.nvim_strwidth(line) + 1) .. "│", border } },
-          virt_text_pos = "inline",
-        })
+        add(row, 0, false, { virt_text = { { "│", border } }, virt_text_win_col = width + 3 })
       end
       add(block.last, 0, true, {
         virt_text = { { "└" .. ("─"):rep(width + 2) .. "┘", border } },

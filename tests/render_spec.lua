@@ -49,6 +49,28 @@ t.test("a block's lines show as typed while the cursor is in it", function()
   t.eq(vim.list_slice(t.body(), 1, 3), { "  python", "x = 1", "<<" })
 end)
 
+t.test("a box stays square around formatted text, and with the cursor in it", function()
+  t.open({ ">> boxed", "A *Tour* of _Systems_", "## A heading", "`code` and ==marked==", "<<" })
+  local box = {
+    "┌───────────────────────┐",
+    "│ A Tour of Systems     │",
+    "│ A heading             │",
+    "│ code and marked       │",
+    "└───────────────────────┘",
+  }
+  t.eq(vim.list_slice(t.body(), 1, 5), box)
+  t.cursor(2)
+  box[2] = "│ A *Tour* of _Systems_ │"
+  t.eq(vim.list_slice(t.body(), 1, 5), box)
+end)
+
+t.test("a heading in a box: its text in the heading's color, no bar", function()
+  local buf = t.open({ ">> boxed", "## A heading", "<<" })
+  local marks = table.concat(t.marks(buf), "\n")
+  t.ok(marks:find("hl NotedownH2", 1, true), marks)
+  t.ok(not marks:find("line_hl", 1, true), marks)
+end)
+
 t.test("insert mode shows the note as typed, with the window's own options", function()
   local buf = t.open({ "# Title" })
   t.eq(vim.wo.conceallevel, 3)
