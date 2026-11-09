@@ -1,5 +1,4 @@
 local Extmark = require('notedown.lib.extmark')
-local compat = require('notedown.lib.compat')
 local replacements = require('notedown.lib.replacements')
 
 ---@class notedown.Decorator
@@ -18,7 +17,7 @@ Decorator.__index = Decorator
 function Decorator.new(buf)
     local self = setmetatable({}, Decorator)
     self.buf = buf
-    self.timer = assert(compat.uv.new_timer())
+    self.timer = assert(vim.uv.new_timer())
     self.running = false
     self.marks = {}
     self.generated = {}

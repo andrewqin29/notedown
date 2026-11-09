@@ -1,7 +1,6 @@
 ---@meta
 
 ---@class (exact) notedown.UserConfig: notedown.partial.UserConfig, notedown.state.UserConfig
----@field preset? notedown.config.Preset
 ---@field overrides? notedown.overrides.UserConfig
 
 ---@class (exact) notedown.partial.UserConfig: notedown.base.UserConfig
@@ -38,7 +37,6 @@
 ---@field injections? notedown.injection.UserConfigs
 ---@field patterns? notedown.pattern.UserConfigs
 ---@field on? notedown.on.UserConfig
----@field completions? notedown.completions.UserConfig
 ---@field custom_handlers? table<string, notedown.Handler>
 
 ---@class (exact) notedown.anti.conceal.UserConfig
@@ -82,18 +80,6 @@
 ---@field rendered? string
 ---@field highlight? string
 ---@field scope_highlight? string
-
----@class (exact) notedown.completions.UserConfig
----@field blink? notedown.completion.UserConfig
----@field coq? notedown.completion.UserConfig
----@field lsp? notedown.completion.UserConfig
----@field filter? notedown.completion.filter.UserConfig
-
----@class (exact) notedown.completion.UserConfig
----@field enabled? boolean
-
----@class (exact) notedown.completion.filter.UserConfig
----@field checkbox? fun(value: notedown.checkbox.custom.UserConfig): boolean
 
 ---@class (exact) notedown.dash.UserConfig: notedown.base.UserConfig
 ---@field icon? string

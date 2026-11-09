@@ -1,44 +1,10 @@
----@enum notedown.config.Preset
-local Preset = {
-    obsidian = 'obsidian',
-    lazy = 'lazy',
-    none = 'none',
-}
-
 ---@class notedown.Presets
 local M = {}
 
 ---@param user notedown.UserConfig
 ---@return notedown.UserConfig
 function M.get(user)
-    return vim.tbl_deep_extend(
-        'force',
-        M.config(user),
-        M.partial(user) or {},
-        M.overrides(user)
-    )
-end
-
----@private
----@param user notedown.UserConfig
----@return notedown.UserConfig
-function M.config(user)
-    ---@type table<notedown.config.Preset?, notedown.UserConfig?>
-    local presets = {
-        [Preset.obsidian] = { render_modes = true },
-        ---https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/extras/lang/markdown.lua
-        [Preset.lazy] = {
-            file_types = { 'markdown', 'norg', 'rmd', 'org', 'codecompanion' },
-            heading = {
-                sign = false,
-                icons = {},
-            },
-            checkbox = {
-                enabled = false,
-            },
-        },
-    }
-    return presets[user.preset] or {}
+    return vim.tbl_deep_extend('force', M.partial(user) or {}, M.overrides(user))
 end
 
 ---@private

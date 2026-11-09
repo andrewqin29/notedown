@@ -4,7 +4,6 @@ local settings = require('notedown.settings')
 local M = {}
 
 ---@class (exact) notedown.Config: notedown.partial.Config, notedown.state.Config
----@field preset notedown.config.Preset
 ---@field overrides notedown.overrides.Config
 
 ---@class (exact) notedown.partial.Config: notedown.base.Config
@@ -41,7 +40,6 @@ local M = {}
 ---@field injections notedown.injection.Configs
 ---@field patterns notedown.pattern.Configs
 ---@field on notedown.on.Config
----@field completions notedown.completions.Config
 ---@field custom_handlers table<string, notedown.Handler>
 
 ---@private
@@ -64,7 +62,6 @@ M.default = {
     -- | obsidian | mimic Obsidian UI                                          |
     -- | lazy     | will attempt to stay up to date with LazyVim configuration |
     -- | none     | does nothing                                               |
-    preset = 'none',
     -- The level of logs to write to file: vim.fn.stdpath('state') .. '/notedown.log'.
     -- Only intended to be used for plugin development / debugging.
     log_level = 'error',
@@ -96,7 +93,6 @@ M.default = {
     anti_conceal = settings.anti_conceal.default,
     padding = settings.padding.default,
     on = settings.on.default,
-    completions = settings.completions.default,
     heading = settings.heading.default,
     paragraph = settings.paragraph.default,
     dash = settings.dash.default,
@@ -137,15 +133,11 @@ end
 ---@return notedown.Config
 function M.resolve_config(user)
     local preset = require('notedown.lib.presets').get(user)
-    -- the note format's settings (notes/init.lua) apply under presets and the user's
+    -- the note format's settings (notes/init.lua) apply under the user's
     local notes = user.notes ~= false and require('notedown.notes').defaults or {}
     local config = vim.tbl_deep_extend('force', M.default, notes, preset, user)
 
     -- override settings that are incompatible with neovim version
-    local compat = require('notedown.lib.compat')
-    if config.pipe_table.wrap and not compat.has_11 then
-        config.pipe_table.wrap = false
-    end
 
     -- override settings that are incompatible with other settings
     if config.indent.enabled then

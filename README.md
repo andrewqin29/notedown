@@ -2,11 +2,10 @@
 
 A note format for Neovim, built on markdown and rendered in the buffer.
 
-notedown started as a fork of
+notedown was originally a fork of
 [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim)
-and keeps its markdown rendering (headings, lists, checkboxes, tables, quotes,
-links), adding a note format of its own on top and removing the markdown
-syntax that format replaces.
+by MeanderingProgrammer, whose markdown rendering (headings, lists, checkboxes,
+tables, quotes, links) it builds on. It is now developed on its own.
 
 Early development: expect changes.
 
@@ -80,8 +79,6 @@ before any file opens.
   `lua/notedown/`.
 - Tests: `just test`. They need plenary.nvim, nvim-treesitter and mini.icons in
   Neovim's data directory, and test the markdown renderer (`notes = false`).
-- `upstream` is render-markdown.nvim. To bring in its changes:
-  `git fetch upstream && git merge upstream/main`.
 
 ## License
 

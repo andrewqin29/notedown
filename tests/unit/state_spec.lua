@@ -115,7 +115,6 @@ describe('state', function()
                 filetype = 'invalid',
             },
             padding = { highlight = true },
-            preset = 'invalid',
             render_modes = 'invalid',
         }
         local expected = {
@@ -137,7 +136,6 @@ describe('state', function()
             'overrides.buftype.other - expected: table?, got: boolean',
             'overrides.filetype - expected: map<string, table>?, got: string',
             'padding.highlight - expected: string, got: boolean',
-            'preset - expected: "lazy"|"none"|"obsidian", got: "invalid"',
             'render_modes - expected: string[]|boolean, got: "invalid"',
         }
         validate(config, expected)

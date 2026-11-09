@@ -26,7 +26,6 @@ function M.setup(config)
     M.injections = config.injections
     M.patterns = config.patterns
     M.on = config.on
-    M.completions = config.completions
     M.custom_handlers = config.custom_handlers
 
     -- reset cache
@@ -54,15 +53,6 @@ end
 
 function M.attach()
     require('notedown.core.ts').init()
-    if M.completions.lsp.enabled then
-        require('notedown.integ.lsp').init()
-    elseif M.completions.blink.enabled then
-        require('notedown.integ.blink').init()
-    elseif M.completions.coq.enabled then
-        require('notedown.integ.coq').init()
-    else
-        require('notedown.integ.cmp').init()
-    end
 end
 
 ---@param amount integer
@@ -90,7 +80,6 @@ function M.validate()
     return require('notedown.debug.schema').validate(
         M.config,
         Config.schema({
-            preset = { enum = { 'none', 'lazy', 'obsidian' } },
             log_level = {
                 enum = { 'trace', 'debug', 'info', 'warn', 'error', 'off' },
             },
@@ -105,7 +94,6 @@ function M.validate()
             injections = settings.injections.schema(),
             patterns = settings.patterns.schema(),
             on = settings.on.schema(),
-            completions = settings.completions.schema(),
             overrides = settings.overrides.schema(),
             custom_handlers = settings.handlers.schema(),
         })

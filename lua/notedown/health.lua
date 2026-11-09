@@ -11,11 +11,11 @@ local state = require('notedown.state')
 local M = {}
 
 ---@private
-M.version = '8.14.12'
+M.version = '0.1.0'
 
 function M.check()
     M.start('versions')
-    M.neovim('0.9', '0.11')
+    M.neovim('0.11', '0.11')
     vim.health.ok('tree-sitter ABI: ' .. vim.treesitter.language_version)
     vim.health.ok('plugin: ' .. M.version)
 
@@ -50,22 +50,6 @@ function M.check()
         vim.health.warn('none installed')
     end
 
-    M.start('conflicts')
-    M.plugin('headlines')
-    M.plugin('markview')
-    M.plugin('obsidian', function(obsidian)
-        -- selene: allow(undefined_variable)
-        local client = Obsidian or obsidian.get_client()
-        if client.opts.ui.enable == false then
-            return nil
-        end
-        return [[
-        disable the ui in your obsidian.nvim config
-        require("obsidian").setup({
-            ui = { enable = false },
-        })
-        ]]
-    end)
 end
 
 ---@private
@@ -142,25 +126,6 @@ function M.ts_info(language, required, active)
             vim.health.error('highlighter: not enabled', {
                 ('call vim.treesitter.start() on %s buffers'):format(language),
             })
-        end
-    end
-end
-
----@private
----@param name string
----@param validate? fun(plugin: any): string?
-function M.plugin(name, validate)
-    local has_plugin, plugin = pcall(require, name) ---@type boolean, any
-    if not has_plugin then
-        vim.health.ok(name .. ': not installed')
-    elseif not validate then
-        vim.health.error(name .. ': installed')
-    else
-        local advice = validate(plugin)
-        if advice then
-            vim.health.error(name .. ': installed', M.trim(advice))
-        else
-            vim.health.ok(name .. ': installed but should not conflict')
         end
     end
 end

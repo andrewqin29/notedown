@@ -299,55 +299,6 @@ function M.checkbox.schema()
     })
 end
 
----@class notedown.completions.Settings
-M.completions = {}
-
----@class (exact) notedown.completions.Config
----@field blink notedown.completion.Config
----@field coq notedown.completion.Config
----@field lsp notedown.completion.Config
----@field filter notedown.completion.filter.Config
-
----@class (exact) notedown.completion.Config
----@field enabled boolean
-
----@class (exact) notedown.completion.filter.Config
----@field checkbox fun(value: notedown.checkbox.custom.Config): boolean
-
----@type notedown.completions.Config
-M.completions.default = {
-    -- Settings for blink.cmp completions source
-    blink = { enabled = false },
-    -- Settings for coq_nvim completions source
-    coq = { enabled = false },
-    -- Settings for in-process language server completions
-    lsp = { enabled = false },
-    filter = {
-        checkbox = function()
-            return true
-        end,
-    },
-}
-
----@return notedown.Schema
-function M.completions.schema()
-    ---@type notedown.Schema
-    local completion = { record = { enabled = { type = 'boolean' } } }
-    ---@type notedown.Schema
-    return {
-        record = {
-            blink = completion,
-            coq = completion,
-            lsp = completion,
-            filter = {
-                record = {
-                    checkbox = { type = 'function' },
-                },
-            },
-        },
-    }
-end
-
 ---@class notedown.dash.Settings
 M.dash = {}
 

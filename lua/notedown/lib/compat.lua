@@ -1,10 +1,6 @@
 ---@class notedown.Compat
 local M = {}
 
-M.uv = vim.uv or vim.loop
-M.has_10 = vim.fn.has('nvim-0.10') == 1
-M.has_11 = vim.fn.has('nvim-0.11') == 1
-
 ---@param buf integer
 ---@param win integer
 ---@param extmarks notedown.Extmark[]

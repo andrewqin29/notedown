@@ -8,19 +8,6 @@ describe('presets', function()
         assert.same(expected, actual)
     end
 
-    it('lazy', function()
-        validate({
-            preset = 'lazy',
-        }, {
-            file_types = { 'markdown', 'norg', 'rmd', 'org', 'codecompanion' },
-            heading = {
-                sign = false,
-                icons = {},
-            },
-            checkbox = { enabled = false },
-        })
-    end)
-
     it('override', function()
         validate({
             pipe_table = { style = 'normal' },
