@@ -1,0 +1,46 @@
+He said “it’s done” and ‘that’s that.’ Add ¹⁄₂ cup——or ¹⁵⁄₁₆. Copyright  ©
+2026, Acme™    and Brand®  . Not 11/08/2026, --help or <!-- html -->.
+
+The  program  starts off  as  a  high-level C  program  that  can be  read  and
+understood by humans, but this paragraph  is long enough to wrap across several
+lines so justification shows.
+
+▋ 󰋽 Note
+▋ A note’s paragraph is justified too, after  its bar, long enough to wrap onto
+▋ a second line and a third line as well, so its spacing shows.
+
+Short line.
+
+-- marks
+0:8  to 0:9  overlay "“"
+0:11  to 0:12  overlay "’"
+0:18  to 0:19  overlay "”"
+0:24  to 0:25  overlay "‘"
+0:29  to 0:30  overlay "’"
+0:37  to 0:38  overlay "’"
+0:43  to 0:46  overlay "¹⁄₂"
+0:50  to 0:52  overlay "——"
+0:55  to 0:60  overlay "¹⁵⁄₁₆"
+0:72  to 0:75  overlay " © "
+0:86  to 0:90  overlay "™   "
+0:100  to 0:103  overlay "®  "
+2:3  inline " "
+2:11  inline " "
+2:22  inline " "
+2:25  inline " "
+2:27  inline " "
+2:40  inline " "
+2:48  inline " "
+2:53  inline " "
+2:60  inline " "
+2:65  inline " "
+2:110  inline " "
+4:0  line_hl NotedownNoteBg
+4:0  overlay "▋ ":NotedownNote
+4:2  to 4:7  inline "󰋽 Note":NotedownNote  conceal ""
+5:0  inline "▋ ":NotedownNote
+5:0  line_hl NotedownNoteBg
+5:0  win_col "▋":NotedownNote  win_col 0  repeat
+5:6  to 5:7  overlay "’"
+5:42  inline " ":NotedownNoteBg
+6:0  to 6:2  conceal_lines

@@ -100,7 +100,7 @@ local function bullet(buf, item, marker, add)
   end
   -- (a marker can start with the indent before it: tree-sitter-markdown#127)
   local shown = text:match("^%s*") .. icon
-  local wider = vim.fn.strdisplaywidth(shown) > vim.fn.strdisplaywidth(text)
+  local wider = vim.api.nvim_strwidth(shown) > vim.api.nvim_strwidth(text)
   local row, col, end_row, end_col = marker:range()
   add(row, col, true, {
     end_row = end_row,

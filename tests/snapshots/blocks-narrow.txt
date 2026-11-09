@@ -1,0 +1,149 @@
+▋ 󰋽 Note
+▋ hello
+▋    a list in a note
+▋    another
+
+▋ 󰌶 Keyboard shortcuts
+
+▋ Press gO for the contents.
+
+▋ 󰅾 Important
+▋ Also warning and caution.
+
+  python
+ # a comment, not a heading
+ def f(x):
+     return x * 2  # "quotes" -- stay
+
+┌───────────────────────────────────────
+│ Chapter 1: A Tour of Computer Systems
+│
+│ short
+│
+└───────────────────────────────────────
+
+>> latex
+x^2 = y^3
+<<
+
+>> mermaid
+graph LR
+  a --> b
+<<
+
+```
+>> note
+not a block, inside a fence
+<<
+```
+
+▋▋ warning
+never closed, so not a block
+
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+
+-- marks
+0:0  line_hl NotedownNoteBg
+0:0  overlay "▋ ":NotedownNote
+0:2  to 0:7  inline "󰋽 Note":NotedownNote  conceal ""
+1:0  inline "▋ ":NotedownNote
+1:0  line_hl NotedownNoteBg
+1:0  win_col "▋":NotedownNote  win_col 0  repeat
+2:0  inline "▋ ":NotedownNote
+2:0  to 2:2  overlay "":NotedownBullet
+2:0  win_col "▋":NotedownNote  win_col 0  repeat
+2:0  line_hl NotedownNoteBg
+2:0  inline "  "
+3:0  inline "▋ ":NotedownNote
+3:0  to 3:2  overlay "":NotedownBullet
+3:0  win_col "▋":NotedownNote  win_col 0  repeat
+3:0  line_hl NotedownNoteBg
+3:0  inline "  "
+4:0  inline "  "
+4:0  to 4:2  conceal_lines
+6:0  line_hl NotedownTipBg
+6:0  overlay "▋ ":NotedownTip
+6:2  to 6:25  inline "󰌶 Keyboard shortcuts":NotedownTip  conceal ""
+7:0  inline "▋ ":NotedownTip
+7:0  line_hl NotedownTipBg
+7:0  win_col "▋":NotedownTip  win_col 0  repeat
+8:0  to 8:2  conceal_lines
+10:0  line_hl NotedownImportantBg
+10:0  overlay "▋ ":NotedownImportant
+10:2  to 10:12  inline "󰅾 Important":NotedownImportant  conceal ""
+11:0  inline "▋ ":NotedownImportant
+11:0  line_hl NotedownImportantBg
+11:0  win_col "▋":NotedownImportant  win_col 0  repeat
+12:0  to 12:2  conceal_lines
+14:0  overlay "  ":NotedownCodeLabel
+14:0  to 18:0  
+      line " ":NotedownCode "# a comment, not a heading":NotedownCode "           ":NotedownCode  
+      line " ":NotedownCode "def f(x):":NotedownCode "                            ":NotedownCode  
+      line " ":NotedownCode '    return x * 2  # "quotes" -- stay':NotedownCode " ":NotedownCode
+14:2  to 14:9  inline "python":NotedownCodeLabel  conceal ""
+15:0  to 18:2  conceal_lines
+20:0  overlay "┌───────────────────────────────────────┐":NotedownBoxBorder
+21:0  inline "│ ":NotedownBoxBorder
+21:0  to 21:37  hl NotedownBoxText
+21:37  inline " │":NotedownBoxBorder
+22:0  inline "│ ":NotedownBoxBorder
+22:0  to 22:5  hl NotedownBoxText
+22:5  inline "                                 │":NotedownBoxBorder
+23:0  overlay "└───────────────────────────────────────┘":NotedownBoxBorder
+40:0  to 40:1  overlay "▋":NotedownQuote  repeat
+40:1  to 40:2  overlay "▋":NotedownQuote  repeat

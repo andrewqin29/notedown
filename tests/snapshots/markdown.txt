@@ -1,0 +1,103 @@
+Chapter One
+Section 1.1
+Third level
+Fourth level
+Fifth level
+Sixth level
+
+   first item
+   second item that is long enough to wrap onto a second line so that its
+    indentation shows
+     nested item
+      󰨓 deeper item
+        󰨔 deepest item
+           cycles back to the first bullet
+  󰄱  unchecked task
+  󰱒  checked task
+    󰄱  nested task
+
+  1. one
+  2. two
+  3. three
+
+  3. three
+  4. four
+
+▋ a quote
+▋ ▋ nested quote that is long enough to wrap onto another line so the bar
+▋ ▋ repeats on it
+
+────────────────────────────────────────────────────────────────────────────────
+
+Some bold, italic, **not bold**, __not italic__, code and highlighted
+text.
+Not highlighted: ==in code== and bold ==inside== bold.
+
+▋ !NOTE
+▋ a plain quote: callouts are >> blocks
+
+```python
+print("a fence shows as typed")
+```
+
+Setext heading
+==============
+
+    indented code shows as typed
+
+| a | b |
+|---|---|
+| 1 | 2 |
+
+-- marks
+0:0  to 0:2  conceal ""
+1:0  to 1:3  conceal ""
+2:0  to 2:4  conceal ""
+2:0  line_hl NotedownH3Bg
+3:0  to 3:5  conceal ""
+3:0  line_hl NotedownH4Bg
+4:0  to 4:6  conceal ""
+4:0  line_hl NotedownH5Bg
+5:0  to 5:7  conceal ""
+5:0  line_hl NotedownH6Bg
+7:0  to 7:2  overlay "":NotedownBullet
+7:0  inline "  "
+8:0  to 8:2  overlay "":NotedownBullet
+8:0  inline "  "
+9:0  inline "  "
+9:2  to 9:4  overlay "":NotedownBullet
+10:0  inline "  "
+10:4  to 10:6  overlay "󰨓":NotedownBullet
+11:0  inline "  "
+11:6  to 11:8  overlay "󰨔":NotedownBullet
+12:0  inline "  "
+12:8  to 12:10  overlay "":NotedownBullet
+13:0  to 13:2  conceal ""
+13:2  overlay "  " "󰄱 ":NotedownUnchecked
+13:6  inline " "
+14:0  to 14:2  conceal ""
+14:2  overlay "  " "󰱒 ":NotedownChecked
+14:6  inline " "
+15:2  to 15:4  conceal ""
+15:4  overlay "  " "󰄱 ":NotedownUnchecked
+15:8  inline " "
+17:0  to 17:3  overlay "1.":NotedownBullet
+17:0  inline "  "
+18:0  to 18:3  overlay "2.":NotedownBullet
+18:0  inline "  "
+19:0  to 19:3  overlay "3.":NotedownBullet
+19:0  inline "  "
+20:0  inline "  "
+21:0  to 21:3  overlay "3.":NotedownBullet
+21:0  inline "  "
+22:0  to 22:3  overlay "4.":NotedownBullet
+22:0  inline "  "
+24:0  to 24:1  overlay "▋":NotedownQuote  repeat
+25:0  to 25:1  overlay "▋":NotedownQuote  repeat
+25:2  to 25:3  overlay "▋":NotedownQuote  repeat
+27:0  overlay "────────────────────────────────────────────────────────────────────────────────":NotedownDash
+29:64  to 29:66  conceal ""
+29:64  to 29:79  hl NotedownHighlight
+29:77  to 29:79  conceal ""
+32:0  to 32:1  overlay "▋":NotedownQuote  repeat
+33:0  to 33:1  overlay "▋":NotedownQuote  repeat

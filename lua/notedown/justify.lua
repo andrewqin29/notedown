@@ -50,7 +50,7 @@ local function tokens(line)
     local next_char = chars[index + 1] or ""
     if char == " " then
       if text ~= "" then
-        list[#list + 1] = { w = vim.fn.strdisplaywidth(text), gap = 0, gap_byte = byte }
+        list[#list + 1] = { w = vim.api.nvim_strwidth(text), gap = 0, gap_byte = byte }
         text = ""
       end
       local last = list[#list]
@@ -58,13 +58,13 @@ local function tokens(line)
     else
       text = text .. char
       if is_break(char) and next_char ~= " " and next_char ~= "" and not is_break(next_char) then
-        list[#list + 1] = { w = vim.fn.strdisplaywidth(text), gap = 0, gap_byte = byte + #char }
+        list[#list + 1] = { w = vim.api.nvim_strwidth(text), gap = 0, gap_byte = byte + #char }
         text = ""
       end
     end
     byte = byte + #char
   end
-  if text ~= "" then list[#list + 1] = { w = vim.fn.strdisplaywidth(text), gap = 0, gap_byte = byte } end
+  if text ~= "" then list[#list + 1] = { w = vim.api.nvim_strwidth(text), gap = 0, gap_byte = byte } end
   return list
 end
 
@@ -162,7 +162,7 @@ function M.marks(buf, scan, add)
     local note = scan.note[row]
     local indent = note and 2 or 0
     if not scan.fenced[row] and not scan.verbatim[row] and eligible(line)
-        and vim.fn.strdisplaywidth(line) > width - indent - 1 then
+        and vim.api.nvim_strwidth(line) > width - indent - 1 then
       for _, space in ipairs(plan(line, width - indent)) do
         add(row, space[1], true, {
           virt_text = { { (" "):rep(space[2]), note and note.bg } },

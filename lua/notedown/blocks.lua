@@ -212,7 +212,7 @@ local function highlighted(code, lang)
 
   local tab = (" "):rep(vim.bo.tabstop)
   local width = 0
-  for _, line in ipairs(code) do width = math.max(width, vim.fn.strdisplaywidth((line:gsub("\t", tab)))) end
+  for _, line in ipairs(code) do width = math.max(width, vim.api.nvim_strwidth((line:gsub("\t", tab)))) end
 
   local bg = "NotedownCode"
   local out = {}
@@ -226,7 +226,7 @@ local function highlighted(code, lang)
         start = col
       end
     end
-    local shown = vim.fn.strdisplaywidth((line:gsub("\t", tab)))
+    local shown = vim.api.nvim_strwidth((line:gsub("\t", tab)))
     chunks[#chunks + 1] = { (" "):rep(width - shown + 1), bg }
     out[row] = chunks
   end
@@ -247,9 +247,11 @@ function M.marks(buf, scan, add)
       -- shows highlighted below it, and the code's own lines and the << are
       -- hidden. The code's lines come back while the cursor is in them; on
       -- the >> line it shows as typed.
-      local icon, icon_hl = require("nvim-web-devicons").get_icon_by_filetype(kind.code)
+      local ok, devicons = pcall(require, "nvim-web-devicons")
+      local icon, icon_hl
+      if ok then icon, icon_hl = devicons.get_icon_by_filetype(kind.code) end
       add(block.first, 0, true, {
-        virt_text = { { (icon or "") .. " ", icon_hl or "NotedownCodeLabel" } },
+        virt_text = { { (icon or " ") .. " ", icon_hl or "NotedownCodeLabel" } },
         virt_text_pos = "overlay",
       })
       add(block.first, 2, true, {
@@ -272,9 +274,9 @@ function M.marks(buf, scan, add)
       -- each line and " │" after it (padded to the longest), and the bottom
       -- border over the <<. The >> and << lines show as typed while the cursor
       -- is on them.
-      local width = vim.fn.strdisplaywidth(lines[block.first + 1]) - 4
+      local width = vim.api.nvim_strwidth(lines[block.first + 1]) - 4
       for row = block.first + 1, block.last - 1 do
-        width = math.max(width, vim.fn.strdisplaywidth(lines[row + 1]))
+        width = math.max(width, vim.api.nvim_strwidth(lines[row + 1]))
       end
       local border = "NotedownBoxBorder"
       add(block.first, 0, true, {
@@ -292,7 +294,7 @@ function M.marks(buf, scan, add)
           add(row, 0, false, { end_col = #line, hl_group = "NotedownBoxText", priority = 200 })
         end
         add(row, #line, false, {
-          virt_text = { { (" "):rep(width - vim.fn.strdisplaywidth(line) + 1) .. "│", border } },
+          virt_text = { { (" "):rep(width - vim.api.nvim_strwidth(line) + 1) .. "│", border } },
           virt_text_pos = "inline",
         })
       end

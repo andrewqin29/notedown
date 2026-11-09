@@ -41,16 +41,16 @@ function M.render()
 
   -- Shorten the longest title until everything fits.
   local titles = vim.tbl_map(function(h) return h.text end, path)
-  local room = vim.api.nvim_win_get_width(win) - vim.fn.strdisplaywidth(left .. right) - 2
+  local room = vim.api.nvim_win_get_width(win) - vim.api.nvim_strwidth(left .. right) - 2
   local function width()
     local total = 0
-    for _, t in ipairs(titles) do total = total + vim.fn.strdisplaywidth(t) + #SEP end
+    for _, t in ipairs(titles) do total = total + vim.api.nvim_strwidth(t) + #SEP end
     return total
   end
   while width() > room do
     local longest, at = 0, nil
     for i, t in ipairs(titles) do
-      local w = vim.fn.strdisplaywidth(t)
+      local w = vim.api.nvim_strwidth(t)
       if w > longest then longest, at = w, i end
     end
     if not at or longest <= 4 then break end
@@ -68,12 +68,13 @@ end
 
 local EXPR = "%!v:lua.require'notedown.breadcrumb'.render()"
 
--- Markdown windows get the breadcrumb, and a window showing something else
--- again loses it. Not floating windows (LSP hovers are markdown too), except
--- reading mode's.
+-- Windows showing a markdown file get the breadcrumb, and a window showing
+-- something else again loses it. Not floating windows, except reading
+-- mode's.
 function M.update(win)
   if not vim.api.nvim_win_is_valid(win) then return end
-  local markdown = vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "markdown"
+  local buf = vim.api.nvim_win_get_buf(win)
+  local markdown = vim.bo[buf].filetype == "markdown" and vim.bo[buf].buftype == ""
   local floating = vim.api.nvim_win_get_config(win).relative ~= ""
   local wanted = markdown and (not floating or vim.w[win].notedown_reading)
   local current = vim.wo[win].winbar

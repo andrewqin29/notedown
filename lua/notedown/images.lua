@@ -301,7 +301,7 @@ function M.setup()
     local text = type == "image" and caption(self)
     local below = text and vim.iter(extmarks):rev():find(function(e) return e.virt_lines end)
     if below then
-      local pad = math.max(0, math.floor(((window_width(self.buf) or 0) - vim.fn.strdisplaywidth(text)) / 2))
+      local pad = math.max(0, math.floor(((window_width(self.buf) or 0) - vim.api.nvim_strwidth(text)) / 2))
       table.insert(below.virt_lines, { { (" "):rep(pad) }, { text, "NotedownImageCaption" } })
     end
     render(self, extmarks)

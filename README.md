@@ -74,6 +74,19 @@ highlight groups (`lua/notedown/highlights.lua`) that a colorscheme can set.
 part returns marks (extmarks) for the whole buffer after a change, and the
 marks on the cursor's line give way so it shows as typed.
 
+## Tests
+
+```sh
+nvim --headless --clean -u tests/run.lua               # all
+nvim --headless --clean -u tests/run.lua -- toc        # names containing "toc"
+nvim --headless --clean -u tests/run.lua -- --update   # rewrite the snapshots
+```
+
+They need only Neovim. Rendering tests compare the screen and marks with
+`tests/snapshots/`, drawn from `tests/fixtures/`; review a snapshot's diff
+before committing it. Images can't be checked headless: open
+`tests/manual/images.md` in Ghostty or kitty and go through it.
+
 ## License
 
 MIT. notedown began as a fork of

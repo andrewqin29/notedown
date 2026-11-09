@@ -25,7 +25,7 @@ function M.open()
   for i, heading in ipairs(list) do
     local mark = i == current and "▶ " or "  "
     lines[i] = mark .. ("  "):rep(heading.level - 1) .. heading.text .. " "
-    widest = math.max(widest, vim.fn.strdisplaywidth(lines[i]))
+    widest = math.max(widest, vim.api.nvim_strwidth(lines[i]))
   end
 
   local outline = vim.api.nvim_create_buf(false, true)
