@@ -6,6 +6,9 @@ See the README (https://github.com/andrewqin29/notedown) for the format.
 ==============================================================================
 COMMANDS                                                    *notedown-commands*
 
+:help  or  <F1>     In a markdown file, a popup of what to write and the
+                    commands; q or <Esc> closes it. `:help {topic}` is
+                    still Neovim's own |:help|.                     *:Help*
 :toc  or  gO        Table of contents popup: j/k to move, <CR> to jump, q or
                     <Esc> to close.                                 *:Toc*
 :read               Toggle reading mode: full width, read-only, everything

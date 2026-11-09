@@ -25,6 +25,8 @@ local LINKS = {
   NotedownChecked = "@markup.list.checked",
   NotedownQuote = "@markup.quote",
   NotedownDash = "LineNr",
+  -- what you type, in the help popup
+  NotedownHelpKey = "@label",
 }
 
 -- How much of a callout's color is mixed into the editor's background for

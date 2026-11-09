@@ -86,21 +86,10 @@ function M.toggle()
   if state then exit() else enter() end
 end
 
--- Lowercase commands for markdown: nvim only allows commands of your own that
--- start with a capital, so :read and :toc typed on their own are turned into
--- :Read and :Toc (toc.lua) when you press Enter. With anything after
--- it, :read is nvim's own (put a file's text below the cursor).
-local LOWERCASE = { read = "Read", toc = "Toc" }
+function M.active() return state ~= nil end
 
 function M.setup()
   vim.api.nvim_create_user_command("Read", M.toggle, { desc = "Toggle reading mode for markdown" })
-  vim.keymap.set("c", "<CR>", function()
-    local command = vim.fn.getcmdtype() == ":" and LOWERCASE[vim.fn.getcmdline()]
-    if command and (vim.bo.filetype == "markdown" or state) then
-      return "<C-u>" .. command .. "<CR>"
-    end
-    return "<CR>"
-  end, { expr = true, desc = "Bare :read and :toc in markdown" })
 end
 
 return M

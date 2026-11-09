@@ -15,6 +15,7 @@
 --   highlights      colors
 --   breadcrumb      the heading path at the top of markdown windows
 --   toc             gO or :toc, a table of contents popup
+--   help            :help or F1, what to write and the commands
 --   reading         :read, reading mode
 
 local M = {}
@@ -27,6 +28,22 @@ local function markdown_file(buf)
   vim.bo[buf].formatlistpat = require("notedown.blocks").list_pattern
   -- The table of contents popup, in place of nvim's own gO (location list).
   vim.keymap.set("n", "gO", function() require("notedown.toc").open() end, { buffer = buf, desc = "Table of contents" })
+  vim.keymap.set("n", "<F1>", function() require("notedown.help").open() end, { buffer = buf, desc = "notedown help" })
+end
+
+-- Lowercase commands for markdown: nvim only allows commands of your own that
+-- start with a capital, so :read, :toc, :help and :h typed on their own are
+-- turned into :Read, :Toc and :Help when you press Enter. With anything after
+-- them they're nvim's own: :read file puts its text below the cursor, :help
+-- topic opens nvim's help.
+local LOWERCASE = { read = "Read", toc = "Toc", help = "Help", h = "Help" }
+
+local function lowercase()
+  local command = vim.fn.getcmdtype() == ":" and LOWERCASE[vim.fn.getcmdline()]
+  if command and (vim.bo.filetype == "markdown" or require("notedown.reading").active()) then
+    return "<C-u>" .. command .. "<CR>"
+  end
+  return "<CR>"
 end
 
 local function attach(buf)
@@ -59,6 +76,9 @@ function M.setup()
     { desc = "Table of contents of the markdown note" })
   vim.api.nvim_create_user_command("Notedown", function() require("notedown.render").toggle() end,
     { desc = "Toggle rendering markdown notes" })
+  vim.api.nvim_create_user_command("Help", function() require("notedown.help").open() end,
+    { desc = "notedown's help" })
+  vim.keymap.set("c", "<CR>", lowercase, { expr = true, desc = "Bare :read, :toc and :help in markdown" })
 end
 
 return M

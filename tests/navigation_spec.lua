@@ -122,3 +122,34 @@ t.test(":toc and :read typed in markdown are :Toc and :Read", function()
   t.keys(":toc<CR>")
   t.ok(toc_window(), ":toc opens it")
 end)
+
+local function help_window()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "notedown_help" then return win end
+  end
+end
+
+t.test("help: :help, :h and F1 open it in markdown, centered; q and Esc close it", function()
+  t.open({ "# One" })
+  for _, open in ipairs({ ":help<CR>", ":h<CR>", "<F1>" }) do
+    t.keys(open)
+    local win = help_window()
+    t.ok(win, open)
+    local config = vim.api.nvim_win_get_config(win)
+    t.ok(math.abs(2 * config.col + config.width + 2 - vim.o.columns) <= 1, "centered")
+    t.keys(open == "<F1>" and "<Esc>" or "q")
+    t.eq(help_window(), nil, open)
+  end
+end)
+
+t.test("help: :help with a topic, or outside markdown, is nvim's", function()
+  t.open({ "# One" })
+  t.keys(":help options<CR>")
+  t.eq(help_window(), nil)
+  t.eq(vim.bo.buftype, "help")
+  vim.cmd("only")
+  vim.cmd("enew")
+  t.keys(":help<CR>")
+  t.eq(help_window(), nil)
+  t.eq(vim.bo.buftype, "help")
+end)

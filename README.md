@@ -31,11 +31,15 @@ Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
 
 ## Commands
 
-| Command        | Does                    |
-| -------------- | ----------------------- |
-| `:toc` or `gO` | table of contents popup |
-| `:read`        | toggle reading mode     |
-| `:Notedown`    | toggle rendering        |
+| Command          | Does                                  |
+| ---------------- | ------------------------------------- |
+| `:help` or `F1`  | what to write and the commands, popup |
+| `:toc` or `gO`   | table of contents popup               |
+| `:read`          | toggle reading mode                   |
+| `:Notedown`      | toggle rendering                      |
+
+In a markdown file `:help` on its own is notedown's; `:help topic` is still
+nvim's help.
 
 ## Install
 
