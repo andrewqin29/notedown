@@ -2,11 +2,6 @@
 
 A note format for Neovim, built on markdown and rendered in the buffer.
 
-notedown was originally a fork of
-[render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim)
-by MeanderingProgrammer, whose markdown rendering (headings, lists, checkboxes,
-tables, quotes, links) it builds on. It is now developed on its own.
-
 Early development: expect changes.
 
 ## The format
@@ -18,8 +13,10 @@ Early development: expect changes.
 | `>> latex` … `<<`                   | typeset formulas, one per line                              |
 | `>> mermaid` … `<<`                 | a mermaid diagram                                           |
 | `>> boxed` … `<<`                   | its lines in a box                                          |
-| `*bold*` `_italic_` `==highlight==` | bold, italic, highlighted                                   |
 | `#` `##`                            | larger headings, drawn as images                            |
+| `###` to `######`                   | headings on a colored bar                                   |
+| `-` `1.` `- [ ]` `>` `---`          | bullets, numbers, checkboxes, quote bars, a line            |
+| `*bold*` `_italic_` `==highlight==` | bold, italic, highlighted                                   |
 | `![caption](picture.png)`           | the picture, centered, with its caption                     |
 | `--` `"quotes"` `1/2` `(c) 2026`    | — “quotes” ½ ©                                              |
 
@@ -29,15 +26,16 @@ markdown files are rendered: not other buffers holding markdown, such as LSP
 hover popups.
 
 Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
-```` ``` ```` code blocks, `$$` math, setext headings, `**bold**` and `__bold__`.
+```` ``` ```` code blocks, `$$` math, setext headings, `**bold**` and
+`__bold__`. Tables show as typed.
 
 ## Commands
 
-| Command          | Does                              |
-| ---------------- | --------------------------------- |
-| `:toc` or `gO`   | table of contents popup           |
-| `:read`          | toggle reading mode               |
-| `:Notedown`      | `enable`, `disable`, `toggle` (`buf_` versions for the buffer) |
+| Command        | Does                    |
+| -------------- | ----------------------- |
+| `:toc` or `gO` | table of contents popup |
+| `:read`        | toggle reading mode     |
+| `:Notedown`    | toggle rendering        |
 
 ## Install
 
@@ -45,19 +43,19 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-    'andrewqin29/notedown',
-    lazy = false,
-    dependencies = {
-        'nvim-treesitter/nvim-treesitter',
-        'nvim-tree/nvim-web-devicons',
-        { 'folke/snacks.nvim', opts = { image = { enabled = true } } },
-    },
-    opts = {},
+  "andrewqin29/notedown",
+  lazy = false,
+  dependencies = {
+    "nvim-treesitter/nvim-treesitter",
+    "nvim-tree/nvim-web-devicons",
+    { "folke/snacks.nvim", opts = { image = { enabled = true } } },
+  },
 }
 ```
 
-It loads at startup because it sets how nvim-treesitter highlights markdown
-before any file opens.
+It loads at startup because it changes how nvim-treesitter highlights
+markdown before any file opens. There is nothing to configure; colors are
+highlight groups (`lua/notedown/highlights.lua`) that a colorscheme can set.
 
 ## Requirements
 
@@ -70,19 +68,14 @@ before any file opens.
 - Diagrams: [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) (`mmdc`)
   and Google Chrome.
 
-## Configuration
+## How it's built
 
-`opts` is merged into the defaults in `lua/notedown/settings.lua`: the icons,
-colors and spacing of bullets, checkboxes, headings, quotes, tables and
-thematic breaks, and the window options set while a note is rendered.
-
-## Development
-
-- The format is in `lua/notedown/notes/`; the markdown renderer is the rest of
-  `lua/notedown/`.
-- Tests: `just test`. They need plenary.nvim, nvim-treesitter and mini.icons in
-  Neovim's data directory. Rendering tests compare the drawn screen.
+`lua/notedown/init.lua` lists the parts. `render.lua` draws each note: every
+part returns marks (extmarks) for the whole buffer after a change, and the
+marks on the cursor's line give way so it shows as typed.
 
 ## License
 
-MIT. Based on render-markdown.nvim by MeanderingProgrammer.
+MIT. notedown began as a fork of
+[render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim)
+by MeanderingProgrammer.

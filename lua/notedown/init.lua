@@ -1,83 +1,64 @@
-local settings = require('notedown.settings')
+-- notedown: a note format for Neovim, built on markdown and rendered in the
+-- buffer. Its parts:
+--
+--   render          drawing each markdown file, and showing the line under
+--                   the cursor as typed
+--   markdown        headings, lists, checkboxes, quotes, ---, ==highlights==
+--   blocks          >> note / tip / important / warning / caution, >> python
+--                   and other code, >> latex, >> mermaid, >> boxed
+--   justify         justified paragraphs, lines broken for the whole paragraph
+--   typography      dashes, curly quotes, fractions, © ® ™
+--   images          typeset math, diagrams and pictures, with snacks.nvim
+--   heading_images  # and ## drawn larger, as images
+--   queries         markdown syntax the format replaces does nothing;
+--                   *bold* and _italic_
+--   highlights      colors
+--   breadcrumb      the heading path at the top of markdown windows
+--   toc             gO or :toc, a table of contents popup
+--   reading         :read, reading mode
 
----@class notedown.Init: notedown.Api
 local M = {}
 
----@class (exact) notedown.Config: notedown.partial.Config
----@field log_level notedown.log.Level
----@field log_runtime boolean
+local done = false
 
----The parts of the config a buffer has its own copy of.
----@class (exact) notedown.partial.Config: notedown.base.Config
----@field debounce integer
----@field anti_conceal notedown.anti.conceal.Config
----@field bullet notedown.bullet.Config
----@field checkbox notedown.checkbox.Config
----@field dash notedown.dash.Config
----@field heading notedown.heading.Config
----@field inline_highlight notedown.inline.highlight.Config
----@field padding notedown.padding.Config
----@field pipe_table notedown.table.Config
----@field quote notedown.quote.Config
----@field win_options notedown.window.Configs
-
----Any part of notedown.Config, merged into the defaults.
----@alias notedown.UserConfig table
-
----@private
----@type boolean
-M.initialized = false
-
----@type notedown.Config
-M.default = {
-    -- Whether markdown is rendered.
-    enabled = true,
-    -- Modes that show the rendered view (:h mode()); other modes show the text
-    -- as typed.
-    render_modes = { 'n', 'c', 't' },
-    -- Milliseconds to wait after a change before rendering again.
-    debounce = 100,
-    -- Logs to vim.fn.stdpath('state') .. '/notedown.log', for development.
-    log_level = 'error',
-    -- Log how long each render takes, for development.
-    log_runtime = false,
-    anti_conceal = settings.anti_conceal,
-    bullet = settings.bullet,
-    checkbox = settings.checkbox,
-    dash = settings.dash,
-    heading = settings.heading,
-    inline_highlight = settings.inline_highlight,
-    padding = settings.padding,
-    pipe_table = settings.pipe_table,
-    quote = settings.quote,
-    win_options = settings.win_options,
-}
-
----@param opts? notedown.UserConfig
-function M.setup(opts)
-    -- This handles discrepancies in initialization order of different plugin managers, some
-    -- run the plugin directory first (lazy.nvim) while others run setup first (vim-plug).
-    -- To support both we want to pickup the last non-empty configuration. This works because
-    -- the plugin directory supplies an empty configuration which will be skipped if state
-    -- has already been initialized by the user.
-    if M.initialized and vim.tbl_count(opts or {}) == 0 then
-        return
-    end
-    M.initialized = true
-    local config = M.resolve_config(opts or {})
-    require('notedown.state').setup(config)
+-- What each markdown file gets besides rendering.
+local function markdown_file(buf)
+  -- How far in wrapped lines continue (blocks.lua, list_pattern).
+  vim.bo[buf].formatlistpat = require("notedown.blocks").list_pattern
+  -- The table of contents popup, in place of nvim's own gO (location list).
+  vim.keymap.set("n", "gO", function() require("notedown.toc").open() end, { buffer = buf, desc = "Table of contents" })
 end
 
----@private
----@param user notedown.UserConfig
----@return notedown.Config
-function M.resolve_config(user)
-    return vim.tbl_deep_extend('force', M.default, user)
+local function attach(buf)
+  if require("notedown.render").attach(buf) then markdown_file(buf) end
 end
 
-return setmetatable(M, {
-    __index = function(_, key)
-        -- Allows API methods to be accessed from top level
-        return require('notedown.api')[key]
-    end,
-})
+-- Called once, at startup (plugin/notedown.lua): before any markdown file
+-- opens, since it changes how nvim-treesitter highlights markdown.
+function M.setup()
+  if done then return end
+  done = true
+
+  require("notedown.highlights").setup()
+  require("notedown.queries").setup()
+  require("notedown.images").setup()
+  require("notedown.render").setup()
+  require("notedown.breadcrumb").setup()
+  require("notedown.reading").setup()
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("notedown", { clear = true }),
+    pattern = "markdown",
+    callback = function(ev) attach(ev.buf) end,
+  })
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) then attach(buf) end
+  end
+
+  vim.api.nvim_create_user_command("Toc", function() require("notedown.toc").open() end,
+    { desc = "Table of contents of the markdown note" })
+  vim.api.nvim_create_user_command("Notedown", function() require("notedown.render").toggle() end,
+    { desc = "Toggle rendering markdown notes" })
+end
+
+return M

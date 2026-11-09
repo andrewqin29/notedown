@@ -11,15 +11,13 @@ COMMANDS                                                    *notedown-commands*
 :read               Toggle reading mode: full width, read-only, everything
                     rendered under the cursor. <Esc> leaves it.     *:Read*
                     (`:read {file}` is still Neovim's own |:read|.)
-:Notedown [cmd]     Rendering: enable, disable, toggle, or buf_enable,
-                    buf_disable, buf_toggle for the buffer.         *:Notedown*
+:Notedown           Toggle rendering.                               *:Notedown*
 
 ==============================================================================
-CONFIGURATION                                          *notedown-configuration*
+COLORS                                                        *notedown-colors*
 
-`require('notedown').setup(opts)` merges opts into the defaults in
-lua/notedown/settings.lua: the icons, colors and spacing of bullets,
-checkboxes, headings, quotes, tables and thematic breaks, and the window
-options set while a note is rendered.
+notedown's highlight groups are named Notedown*, listed in
+lua/notedown/highlights.lua. Most link to the colorscheme's groups as
+defaults, so a colorscheme can set them.
 
  vim:tw=78:ts=8:ft=help:norl:
