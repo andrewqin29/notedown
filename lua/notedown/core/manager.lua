@@ -1,7 +1,6 @@
 local env = require('notedown.lib.env')
 local log = require('notedown.core.log')
 local state = require('notedown.state')
-local str = require('notedown.lib.str')
 local ui = require('notedown.core.ui')
 
 ---@class notedown.Manager
@@ -16,10 +15,7 @@ M.buffers = {}
 
 ---called from plugin directory
 function M.init()
-    -- lazy loading: ignores current buffer as FileType event already executed
-    if #env.lazy('ft') == 0 and #env.lazy('cmd') == 0 then
-        M.attach(env.buf.current())
-    end
+    M.attach(env.buf.current())
     -- attempt to attach to all buffers, cannot use pattern to support plugin directory
     vim.api.nvim_create_autocmd('FileType', {
         group = M.group,
@@ -49,10 +45,6 @@ end
 
 ---@param enable? boolean
 function M.set(enable)
-    -- lazy loading: all previously opened buffers have been ignored
-    if #env.lazy('cmd') > 0 then
-        M.attach(env.buf.current())
-    end
     if enable ~= nil then
         state.enabled = enable
     else
@@ -86,8 +78,6 @@ function M.attach(buf)
     end
 
     local config = state.get(buf)
-    state.on.attach({ buf = buf })
-    state.attach()
 
     local events = {
         'BufWinEnter',
@@ -105,12 +95,6 @@ function M.attach(buf)
         events[#events + 1] = 'CursorMovedI'
         events[#events + 1] = 'TextChangedI'
     end
-    local force = state.change_events
-    for _, event in ipairs(force) do
-        if not vim.tbl_contains(events, event) then
-            events[#events + 1] = event
-        end
-    end
 
     vim.api.nvim_create_autocmd(events, {
         group = M.group,
@@ -121,7 +105,7 @@ function M.attach(buf)
             end
             local win = env.buf.win(buf)
             local event = args.event
-            ui.update(buf, win, event, vim.tbl_contains(force, event))
+            ui.update(buf, win, event, false)
         end,
     })
 
@@ -146,28 +130,14 @@ function M.should_attach(buf)
         return false
     end
 
-    local file_type = env.buf.get(buf, 'filetype')
-    local file_types = state.file_types
-    local matches = vim.tbl_contains(file_types, file_type)
-    for _, ft in ipairs(str.split(file_type, '.', true)) do
-        matches = matches or vim.tbl_contains(file_types, ft)
-    end
-    if not matches then
-        local reason = ('%s /∈ %s'):format(file_type, vim.inspect(file_types))
-        log.attach(buf, 'skip', 'file type', reason)
+    -- markdown files only: not other buffers holding markdown, such as LSP
+    -- hover popups and plugin windows (their buftype isn't empty)
+    if env.buf.get(buf, 'filetype') ~= 'markdown' then
+        log.attach(buf, 'skip', 'not markdown')
         return false
     end
-
-    local file_size = env.file_size_mb(buf)
-    local max_file_size = state.max_file_size
-    if file_size > max_file_size then
-        local reason = ('%f > %f'):format(file_size, max_file_size)
-        log.attach(buf, 'skip', 'file size', reason)
-        return false
-    end
-
-    if state.ignore(buf) then
-        log.attach(buf, 'skip', 'user ignore')
+    if env.buf.get(buf, 'buftype') ~= '' then
+        log.attach(buf, 'skip', 'not a file')
         return false
     end
 

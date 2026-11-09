@@ -9,7 +9,6 @@ local str = require('notedown.lib.str')
 ---@field marker notedown.Node
 ---@field level integer
 ---@field icon? string
----@field sign? string
 ---@field fg? string
 ---@field bg? string
 ---@field width notedown.heading.Width
@@ -56,7 +55,6 @@ function Render:setup()
         marker = marker,
         level = level,
         icon = custom.icon or self:get_string(self.config.icons, level),
-        sign = list.cycle(self.config.signs, level),
         fg = custom.foreground or list.clamp(self.config.foregrounds, level),
         bg = custom.background or list.clamp(self.config.backgrounds, level),
         width = list.clamp(self.config.width, level) or 'full',
@@ -97,7 +95,6 @@ end
 
 ---@protected
 function Render:run()
-    self:sign(self.config, self.config.sign, self.data.sign, self.data.fg)
     local box = self:box(self:marker())
     self:background(box)
     self:padding(box)
@@ -220,8 +217,7 @@ function Render:background(box)
     local win_col = 0
     local padding = self:line()
     if self.data.width == 'block' then
-        local indent = self:indent():size(self.data.level)
-        win_col = col + box.margin + box.body + indent
+        win_col = col + box.margin + box.body
         padding:pad(vim.o.columns * 2)
     end
     for row = self.node.start_row, self.node.end_row - 1 do
@@ -290,7 +286,7 @@ function Render:border(box, above)
     else
         self.marks:add(self.config, 'virtual_lines', self.node.start_row, 0, {
             virt_lines = {
-                self:indent():line(true, self.data.level):extend(line):get(),
+                line:get(),
             },
             virt_lines_above = above,
         })

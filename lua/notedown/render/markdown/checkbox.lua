@@ -2,6 +2,10 @@ local Base = require('notedown.render.base')
 local Bullet = require('notedown.render.markdown.bullet')
 local str = require('notedown.lib.str')
 
+---@class notedown.checkbox.Value
+---@field node notedown.Node
+---@field config notedown.checkbox.component.Config
+
 ---@class notedown.checkbox.Data
 ---@field marker notedown.Node
 ---@field checkbox notedown.Node
@@ -45,19 +49,19 @@ end
 
 ---@private
 ---@param marker notedown.Node
----@return notedown.request.checkbox.Value?
+---@return notedown.checkbox.Value?
 function Render:get_value(marker)
     local unchecked = marker:sibling('task_list_marker_unchecked')
     if unchecked then
-        ---@type notedown.request.checkbox.Value
+        ---@type notedown.checkbox.Value
         return { node = unchecked, config = self.config.unchecked }
     end
     local checked = marker:sibling('task_list_marker_checked')
     if checked then
-        ---@type notedown.request.checkbox.Value
+        ---@type notedown.checkbox.Value
         return { node = checked, config = self.config.checked }
     end
-    return self.context.checkbox:get(self.node)
+    return nil
 end
 
 ---@protected

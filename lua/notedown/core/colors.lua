@@ -26,8 +26,6 @@ M.colors = {
     -- Code
     Code            = 'ColorColumn',
     CodeInfo        = '@label',
-    CodeBorder      = 'NotedownCode',
-    CodeFallback    = 'Normal',
     CodeInline      = 'NotedownCode',
     -- Block quotes
     Quote           = '@markup.quote',
@@ -41,18 +39,10 @@ M.colors = {
     InlineHighlight = 'NotedownCodeInline',
     Bullet          = 'Normal',
     Dash            = 'LineNr',
-    Sign            = 'SignColumn',
     Math            = '@markup.math',
-    Indent          = 'Whitespace',
-    HtmlComment     = '@comment',
-    -- Links
-    Link            = '@markup.link.label.markdown_inline',
-    LinkTitle       = '@markup.link.markdown_inline',
-    WikiLink        = 'NotedownLink',
     -- Checkboxes
     Unchecked       = '@markup.list.unchecked',
     Checked         = '@markup.list.checked',
-    Todo            = '@markup.raw',
     -- Pipe tables
     TableHead       = '@markup.heading',
     TableRow        = 'Normal',

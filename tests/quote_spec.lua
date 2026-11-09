@@ -85,7 +85,6 @@ describe('quote', function()
         }
 
         marks:add(row:get(0, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0), 2, util.heading.sign(1))
         marks:add(row:get(0, 0), { 2, 3 }, util.heading.icon(1))
         marks:add(row:get(0, 1), { 2, 0 }, util.heading.bg(1))
         marks:add(row:get(0, 0), { 0, 1 }, util.quote(levels[1]))
@@ -98,11 +97,11 @@ describe('quote', function()
         marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
 
         util.assert_view(marks, {
-            '󰫎 ▋ 󰲡 Heading',
-            '  ▋',
-            '  ▋ ▋ Tip',
-            '  ▋ ▋',
-            '  ▋ ▋ Text',
+            '▋ 󰲡 Heading',
+            '▋',
+            '▋ ▋ Tip',
+            '▋ ▋',
+            '▋ ▋ Text',
         })
     end)
 end)

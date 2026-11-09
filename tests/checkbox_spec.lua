@@ -6,7 +6,7 @@ describe('checkbox', function()
     it('handle nested list items', function()
         util.setup.text({
             '1.  -  [x]  Checked Checkbox',
-            '1.  -  [-]  Todo Checkbox',
+            '1.  -  [ ]  Unchecked Checkbox',
         })
         local marks = util.marks()
         marks:add({ 0, 0 }, { 0, 4 }, util.ordered(1))
@@ -15,11 +15,11 @@ describe('checkbox', function()
         marks:add({ 0, 0 }, { 10, 11 }, util.conceal())
         marks:add({ 1, 1 }, { 0, 4 }, util.ordered(2))
         marks:add({ 1, 1 }, { 4, 7 }, util.conceal())
-        marks:add(1, 7, util.checkbox('todo', 0))
-        marks:add(1, 11, util.padding(1, { priority = false, combine = true }))
+        marks:add(1, 7, util.checkbox('unchecked', 1))
+        marks:add({ 1, 1 }, { 10, 11 }, util.conceal())
         util.assert_view(marks, {
             '1.  󰱒   Checked Checkbox',
-            '2.  󰥔   Todo Checkbox',
+            '2.  󰄱   Unchecked Checkbox',
         })
     end)
 

@@ -25,11 +25,6 @@ function M.setup.init(opts)
         notes = false,
         anti_conceal = { enabled = false },
         win_options = { concealcursor = { rendered = 'nvic' } },
-        overrides = {
-            buftype = {
-                nofile = { sign = { enabled = true } },
-            },
-        },
     }
     local config = vim.tbl_deep_extend('force', test_config, opts or {})
     require('notedown').setup(config)
@@ -47,9 +42,14 @@ end
 ---@param opts? notedown.UserConfig
 function M.setup.text(lines, opts)
     M.setup.init(opts)
-    local buf = vim.api.nvim_create_buf(false, true)
+    -- a file buffer (not scratch): notedown only renders files. Marked as
+    -- saved, so the next test can switch away from it.
+    vim.bo.modified = false
+    local buf = vim.api.nvim_create_buf(false, false)
+    vim.bo[buf].bufhidden = 'wipe'
     vim.api.nvim_set_current_buf(buf)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.bo[buf].modified = false
     vim.bo[buf].filetype = 'markdown'
     vim.wait(0)
 end

@@ -1,5 +1,4 @@
 local Context = require('notedown.request.context')
-local compat = require('notedown.lib.compat')
 local env = require('notedown.lib.env')
 local iter = require('notedown.lib.iter')
 local log = require('notedown.core.log')
@@ -117,7 +116,6 @@ end
 function Updater:clear()
     self.decorator:clear(M.ns)
     vim.api.nvim_buf_clear_namespace(self.buf, M.ns, 0, -1)
-    state.on.clear({ buf = self.buf, win = self.win })
 end
 
 ---@private
@@ -130,10 +128,6 @@ function Updater:render()
             local initial = self.decorator:initial()
             self:clear()
             self.decorator:set(extmarks)
-            if initial then
-                compat.fix_lsp_window(self.buf, self.win, extmarks)
-                state.on.initial({ buf = self.buf, win = self.win })
-            end
             self:display()
         end)
     else
@@ -172,7 +166,6 @@ function Updater:display()
     self.decorator:display(M.ns, function(extmark)
         return self:hide(extmark, range)
     end)
-    state.on.render({ buf = self.buf, win = self.win })
 end
 
 ---@private

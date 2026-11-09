@@ -19,7 +19,7 @@ describe('table wrapping', function()
         '│ Name  │ Description                  │',
         '├───────┼──────────────────────────────┤',
         '│ bold  │ Here is a long description   │',
-        '│       │ with 󰖟 a link and some code  │',
+        '│       │ with a link and some code    │',
         '│       │ and 行行行.                  │',
         '│ short │ Another very long            │',
         '│       │ description which should     │',
@@ -101,11 +101,11 @@ describe('table wrapping', function()
             'AFTER',
         }, { pipe_table = { cell = 'trimmed' } })
         util.assert_screen({
-            '┌───┬────────┐',
-            '│ A │ B      │',
-            '├───┼────────┤',
-            '│ x │ 󰖟 link │',
-            '└───┴────────┘',
+            '┌───┬──────┐',
+            '│ A │ B    │',
+            '├───┼──────┤',
+            '│ x │ link │',
+            '└───┴──────┘',
             'AFTER',
         })
     end)
@@ -263,30 +263,6 @@ describe('table wrapping', function()
         })
     end)
 
-    it('section indentation', function()
-        util.setup.text({
-            '# Section',
-            '',
-            '| A | B |',
-            '| - | - |',
-            '| x | one two three four five six seven eight nine ten |',
-        }, {
-            pipe_table = { cell = 'padded' },
-            heading = { enabled = false },
-            indent = { enabled = true, skip_level = 0, per_level = 2 },
-        })
-        util.assert_screen({
-            '▎ # Section',
-            '▎',
-            '▎ ┌───┬────────────────────────────────┐',
-            '▎ │ A │ B                              │',
-            '▎ ├───┼────────────────────────────────┤',
-            '▎ │ x │ one two three four five six    │',
-            '▎ │   │ seven eight nine ten           │',
-            '▎ └───┴────────────────────────────────┘',
-        })
-    end)
-
     it('viewport-dependent widths', function()
         local input = { '', '| A | B |', '| - | - |' }
         for _ = 1, 100 do
@@ -358,7 +334,7 @@ describe('table wrapping', function()
             '| Name | Description |',
             '├───────┼──────────────────────────────┤',
             '│ bold  │ Here is a long description   │',
-            '│       │ with 󰖟 a link and some code  │',
+            '│       │ with a link and some code    │',
             '│       │ and 行行行.                  │',
             '│ short │ Another very long            │',
             '│       │ description which should     │',

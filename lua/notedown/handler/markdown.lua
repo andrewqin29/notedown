@@ -18,8 +18,6 @@ function M.parse(ctx)
 
         (document) @document
 
-        (link_reference_definition (link_label) @footnote)
-
         (atx_heading) @heading
 
         (list_item) @list
@@ -28,20 +26,16 @@ function M.parse(ctx)
 
         (block_quote) @quote
 
-        (section) @section
-
         (pipe_table) @table
     ]])
     ---@type table<string, notedown.Render>
     local renders = {
         dash = require('notedown.render.markdown.dash'),
         document = require('notedown.render.markdown.document'),
-        footnote = require('notedown.render.common.footnote'),
         heading = require('notedown.render.markdown.heading'),
         list = require('notedown.render.markdown.list'),
         paragraph = require('notedown.render.markdown.paragraph'),
         quote = require('notedown.render.markdown.quote'),
-        section = require('notedown.render.markdown.section'),
         table = require('notedown.render.markdown.table'),
     }
     local context = Context.get(ctx.buf)

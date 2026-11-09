@@ -24,7 +24,9 @@ Early development: expect changes.
 | `--` `"quotes"` `1/2` `(c) 2026`    | — “quotes” ½ ©                                              |
 
 Paragraphs are justified, a breadcrumb at the top of the window shows the
-headings above the cursor, and the line under the cursor shows as typed.
+headings above the cursor, and the line under the cursor shows as typed. Only
+markdown files are rendered: not other buffers holding markdown, such as LSP
+hover popups.
 
 Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
 ```` ``` ```` code blocks, `$$` math, setext headings, `**bold**` and `__bold__`.
@@ -35,7 +37,7 @@ Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
 | ---------------- | --------------------------------- |
 | `:toc` or `gO`   | table of contents popup           |
 | `:read`          | toggle reading mode               |
-| `:Notedown`      | enable, disable or toggle rendering |
+| `:Notedown`      | `enable`, `disable`, `toggle` (`buf_` versions for the buffer) |
 
 ## Install
 

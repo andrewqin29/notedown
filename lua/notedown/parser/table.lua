@@ -1,4 +1,3 @@
-local Indent = require('notedown.lib.indent')
 local display = require('notedown.lib.display')
 local env = require('notedown.lib.env')
 local log = require('notedown.core.log')
@@ -142,13 +141,12 @@ function Parser:parse(root, marks)
 
     local prefixes = {} ---@type table<integer, notedown.mark.Line>
     if layout.wrap then
-        local indent = Indent.new(self.context, root):line(true)
         local prefix_width = 0
 
         ---@param node notedown.Node
         local function prefix(node)
             local expanded = self.context.config:line()
-            local line = indent:copy():extend(
+            local line = self.context.config:line():extend(
                 display.prefix(self.context, marks:get(), node)
             )
             for _, unit in ipairs(Parser.units(line:get())) do

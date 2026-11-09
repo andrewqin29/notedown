@@ -2,7 +2,6 @@
 
 - [ ] Unchecked Checkbox
 - [x] Checked Checkbox
-- [-] Todo Checkbox
 - Regular List Item
 
 ---

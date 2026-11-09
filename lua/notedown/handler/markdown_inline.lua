@@ -14,21 +14,10 @@ function M.parse(ctx)
         ((inline) @highlight
             (#lua-match? @highlight "==[^=]+=="))
 
-        [
-            (email_autolink)
-            (full_reference_link)
-            (image)
-            (inline_link)
-            (uri_autolink)
-        ] @link
-
-        (shortcut_link) @shortcut
     ]])
     ---@type table<string, notedown.Render>
     local renders = {
         highlight = require('notedown.render.inline.highlight'),
-        link = require('notedown.render.inline.link'),
-        shortcut = require('notedown.render.inline.shortcut'),
     }
     local context = Context.get(ctx.buf)
     local marks = Marks.new(context, true)

@@ -20,16 +20,9 @@ describe('table', function()
     local function shared()
         local marks, row = util.marks(), util.row()
 
-        marks:add(row:get(3), 15, util.link('web'))
-
-        marks:add(row:get(1, 0), { 14, 16 }, util.conceal())
+        marks:add(row:get(4, 0), { 14, 16 }, util.conceal())
         marks:add(row:get(0, 0), { 14, 25 }, util.highlight('inline'))
         marks:add(row:get(0, 0), { 23, 25 }, util.conceal())
-
-        marks:add(row:get(1, 0), { 14, 16 }, util.conceal())
-        marks:add(row:get(0), 16, util.link('wiki'))
-        marks:add(row:get(0, 0), { 16, 21 }, util.conceal())
-        marks:add(row:get(0, 0), { 25, 27 }, util.conceal())
 
         return marks
     end
@@ -76,11 +69,11 @@ describe('table', function()
             util.table.delimiter(0, { 11 }, { 23, 1 })
         )
         marks:add(row:get(1), 13, util.table.padding(2))
-        marks:add(row:get(0), 15, util.table.padding(16))
+        marks:add(row:get(0), 15, util.table.padding(18))
         marks:add(row:get(1), 12, util.table.padding(8))
         marks:add(row:get(0), 14, util.table.padding(16))
         marks:add(row:get(0, 0), { 26, 38 }, util.conceal())
-        marks:add(row:get(1), 14, util.table.padding(16))
+        marks:add(row:get(1), 14, util.table.padding(13))
         marks:add(row:get(0, 0), { 28, 38 }, util.conceal())
         marks:add(row:get(1), 0, util.table.border(false, false, 11, 24))
 
@@ -96,9 +89,9 @@ describe('table', function()
             '┌───────────┬────────────────────────┐',
             '│ Heading 1 │              Heading 2 │',
             '├───────────┼───────────────────────━┤',
-            '│ Item 行   │                 󰖟 link │',
+            '│ Item 行   │                   link │',
             '│ 1         │                 Itém 2 │',
-            '│ Regular   │                 󱗖 link │',
+            '│ Regular   │              [行|link] │',
             '└───────────┴────────────────────────┘',
             '┌───────────┬───────────┐',
             '│ Heading 1 │ Heading 2 │',
@@ -124,12 +117,11 @@ describe('table', function()
             util.table.delimiter(13, { 11 }, { 10, 1 })
         )
         marks:add(row:get(1), 13, util.table.padding(2))
-        marks:add(row:get(0), 15, util.table.padding(3))
+        marks:add(row:get(0), 15, util.table.padding(5))
         marks:add(row:get(1), 12, util.table.padding(8))
         marks:add(row:get(0), 14, util.table.padding(3))
         marks:add(row:get(0, 0), { 26, 38 }, util.conceal())
-        marks:add(row:get(1), 14, util.table.padding(3))
-        marks:add(row:get(0, 0), { 28, 38 }, util.conceal())
+        marks:add(row:get(1, 0), { 28, 38 }, util.conceal())
         marks:add(row:get(1), 0, util.table.border(false, false, 11, 11))
 
         marks:add(row:get(1), 0, util.table.border(true, true, 11, 11))
@@ -144,9 +136,9 @@ describe('table', function()
             '┌───────────┬───────────┐',
             '│ Heading 1 │ Heading 2 │',
             '├───────────┼──────────━┤',
-            '│ Item 行   │    󰖟 link │',
+            '│ Item 行   │      link │',
             '│ 1         │    Itém 2 │',
-            '│ Regular   │    󱗖 link │',
+            '│ Regular   │ [行|link] │',
             '└───────────┴───────────┘',
             '┌───────────┬───────────┐',
             '│ Heading 1 │ Heading 2 │',
@@ -165,11 +157,11 @@ describe('table', function()
             '┌───────────┬────────────────────────┐',
             '│ Heading 1 │              Heading 2 │',
             '├───────────┼───────────────────────━┤',
-            '│ Item 行   │                 󰖟 link │',
+            '│ Item 行   │                   link │',
             '├───────────┼────────────────────────┤',
             '│ 1         │                 Itém 2 │',
             '├───────────┼────────────────────────┤',
-            '│ Regular   │                 󱗖 link │',
+            '│ Regular   │              [行|link] │',
             '└───────────┴────────────────────────┘',
             '┌───────────┬───────────┐',
             '│ Heading 1 │ Heading 2 │',
@@ -205,9 +197,9 @@ describe('table', function()
             '',
             '│ Heading 1 │ Heading 2            │',
             '├───────────┼───────────────────────━┤',
-            '│ Item 行 │ 󰖟 link │',
+            '│ Item 行 │ link │',
             '│ 1 │ Itém 2             │',
-            '│ Regular   │ 󱗖 link           │',
+            '│ Regular   │ [行|link]           │',
             '┌───────────┬───────────┐',
             '│ Heading 1 │ Heading 2 │',
             '├───────────┼───────────┤',

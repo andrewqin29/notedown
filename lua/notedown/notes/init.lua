@@ -23,12 +23,11 @@ M.defaults = {
   -- The quote bar on every wrapped line, not only the first. Wrapped quote
   -- lines start two columns in, under the text (blocks.lua, list_pattern).
   quote = { repeat_linebreak = true },
-  -- No icons in front of headings or in the sign column, and no colored bar
+  -- No icons in front of headings, and no colored bar
   -- behind # and ## (drawn as images, heading_images.lua).
   heading = {
     icons = { "" },
     position = "inline",
-    sign = false,
     backgrounds = { "Normal", "Normal", "NotedownH3Bg", "NotedownH4Bg",
       "NotedownH5Bg", "NotedownH6Bg" },
   },

@@ -6,13 +6,10 @@ describe('demo/list_table.md', function()
     ---@return notedown.test.Marks
     local function shared()
         local marks, row = util.marks(), util.row()
-
-        marks:add(row:get(0), 0, util.heading.sign(1))
         marks:add(row:get(0, 0), { 0, 1 }, util.heading.icon(1))
         marks:add(row:get(0, 1), { 0, 0 }, util.heading.bg(1))
 
         marks:add(row:get(1, 0), { 0, 2 }, util.bullet(1))
-        marks:add(row:get(0), 20, util.link('web'))
         marks:add(row:get(1, 0), { 0, 2 }, util.bullet(1))
         marks:add(row:get(1, 0), { 2, 6 }, util.bullet(2, 2))
         marks:add(row:get(1, 0), { 4, 6 }, util.bullet(2))
@@ -20,17 +17,12 @@ describe('demo/list_table.md', function()
         marks:add(row:get(1, 0), { 8, 10 }, util.bullet(4))
         marks:add(row:get(1, 0), { 10, 12 }, util.bullet(1))
         marks:add(row:get(1, 0), { 0, 2 }, util.bullet(1))
-        marks:add(row:get(0), 20, util.link('link'))
-
-        marks:add(row:get(2), 0, util.heading.sign(1))
-        marks:add(row:get(0, 0), { 0, 1 }, util.heading.icon(1))
+        marks:add(row:get(2, 0), { 0, 1 }, util.heading.icon(1))
         marks:add(row:get(0, 1), { 0, 0 }, util.heading.bg(1))
 
         marks:add(row:get(1, 0), { 0, 3 }, util.ordered(1))
         marks:add(row:get(1, 0), { 0, 3 }, util.ordered(2))
-
-        marks:add(row:get(2), 0, util.heading.sign(1))
-        marks:add(row:get(0, 0), { 0, 1 }, util.heading.icon(1))
+        marks:add(row:get(2, 0), { 0, 1 }, util.heading.icon(1))
         marks:add(row:get(0, 1), { 0, 0 }, util.heading.bg(1))
 
         marks:add(row:get(1, 0), { 0, 1 }, util.table.pipe(true))
@@ -48,9 +40,8 @@ describe('demo/list_table.md', function()
         marks:add(row:get(0, 0), { 40, 41 }, util.table.pipe(false))
         marks:add(row:get(1, 0), { 0, 1 }, util.table.pipe(false))
         marks:add(row:get(0, 0), { 9, 10 }, util.table.pipe(false))
-        marks:add(row:get(0), 11, util.table.padding(3))
-        marks:add(row:get(0), 11, util.link('link'))
-        marks:add(row:get(0), 25, util.table.padding(4))
+        marks:add(row:get(0), 11, util.table.padding(4))
+        marks:add(row:get(0), 25, util.table.padding(5))
         marks:add(row:get(0, 0), { 25, 26 }, util.table.pipe(false))
         marks:add(row:get(0), 27, util.table.padding(1))
         marks:add(row:get(0, 0), { 32, 33 }, util.conceal())
@@ -76,30 +67,30 @@ describe('demo/list_table.md', function()
         marks:add(row:get(2), 0, util.table.border(false, false, 8, 15, 7, 6))
 
         util.assert_view(marks, {
-            '󰫎 󰲡 Unordered List',
+            '󰲡 Unordered List',
             '',
-            '  ● List Item 1: with 󰖟 link',
-            '  ● List Item 2: with inline code',
-            '      ○ Nested List 1 Item 1',
-            '      ○ Nested List 1 Item 2',
-            '        ◆ Nested List 2 Item 1',
-            '          ◇ Nested List 3 Item 1',
-            '            ● Nested List 4 Item 1',
-            '  ● List Item 3: with 󰌹 reference link',
+            '● List Item 1: with link',
+            '● List Item 2: with inline code',
+            '    ○ Nested List 1 Item 1',
+            '    ○ Nested List 1 Item 2',
+            '      ◆ Nested List 2 Item 1',
+            '        ◇ Nested List 3 Item 1',
+            '          ● Nested List 4 Item 1',
+            '● List Item 3: with reference link',
             '',
-            '󰫎 󰲡 Ordered List',
+            '󰲡 Ordered List',
             '',
-            '  1. Item 1',
-            '  2. Item 2',
+            '1. Item 1',
+            '2. Item 2',
             '',
-            '󰫎 󰲡 Table',
-            '  ┌────────┬───────────────┬───────┬──────┐',
-            '  │ Left   │    Center     │ Right │ None │',
-            '  ├━───────┼━─────────────━┼──────━┼──────┤',
-            '  │ Code   │     Bold      │ Plain │ Item │',
-            '  │ Item   │    󰌹 link     │  Item │ Item │',
-            '  └────────┴───────────────┴───────┴──────┘',
-            '  [example]: https://example.com',
+            '󰲡 Table',
+            '┌────────┬───────────────┬───────┬──────┐',
+            '│ Left   │    Center     │ Right │ None │',
+            '├━───────┼━─────────────━┼──────━┼──────┤',
+            '│ Code   │     Bold      │ Plain │ Item │',
+            '│ Item   │     link      │  Item │ Item │',
+            '└────────┴───────────────┴───────┴──────┘',
+            '[example]: https://example.com',
         })
     end)
 
@@ -143,30 +134,30 @@ describe('demo/list_table.md', function()
         marks:add(row:get(2), 0, util.table.border(false, false, 8, 15, 7, 6))
 
         util.assert_view(marks, {
-            '󰫎 󰲡 Unordered List',
+            '󰲡 Unordered List',
             '',
-            '    ●   List Item 1: with 󰖟 link',
-            '    ●   List Item 2: with inline code',
-            '        ○   Nested List 1 Item 1',
-            '        ○   Nested List 1 Item 2',
-            '          ◆   Nested List 2 Item 1',
-            '            ◇   Nested List 3 Item 1',
-            '              ●   Nested List 4 Item 1',
-            '    ●   List Item 3: with 󰌹 reference link',
+            '  ●   List Item 1: with link',
+            '  ●   List Item 2: with inline code',
+            '      ○   Nested List 1 Item 1',
+            '      ○   Nested List 1 Item 2',
+            '        ◆   Nested List 2 Item 1',
+            '          ◇   Nested List 3 Item 1',
+            '            ●   Nested List 4 Item 1',
+            '  ●   List Item 3: with reference link',
             '',
-            '󰫎 󰲡 Ordered List',
+            '󰲡 Ordered List',
             '',
-            '    1.   Item 1',
-            '    2.   Item 2',
+            '  1.   Item 1',
+            '  2.   Item 2',
             '',
-            '󰫎 󰲡 Table',
-            '  ┌────────┬───────────────┬───────┬──────┐',
-            '  │ Left   │    Center     │ Right │ None │',
-            '  ├━───────┼━─────────────━┼──────━┼──────┤',
-            '  │ Code   │     Bold      │ Plain │ Item │',
-            '  │ Item   │    󰌹 link     │  Item │ Item │',
-            '  └────────┴───────────────┴───────┴──────┘',
-            '  [example]: https://example.com',
+            '󰲡 Table',
+            '┌────────┬───────────────┬───────┬──────┐',
+            '│ Left   │    Center     │ Right │ None │',
+            '├━───────┼━─────────────━┼──────━┼──────┤',
+            '│ Code   │     Bold      │ Plain │ Item │',
+            '│ Item   │     link      │  Item │ Item │',
+            '└────────┴───────────────┴───────┴──────┘',
+            '[example]: https://example.com',
         })
     end)
 end)

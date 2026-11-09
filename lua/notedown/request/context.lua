@@ -5,7 +5,6 @@ local str = require('notedown.lib.str')
 ---@field win integer
 ---@field config notedown.buf.Config
 ---@field view notedown.request.View
----@field checkbox notedown.request.Checkbox
 ---@field conceal notedown.request.Conceal
 ---@field highlights notedown.request.Highlights
 ---@field inline notedown.request.Inline
@@ -24,7 +23,6 @@ function Context.new(buf, win, config, view)
     self.win = win
     self.config = config
     self.view = view
-    self.checkbox = require('notedown.request.checkbox').new()
     self.conceal = require('notedown.request.conceal').new(self)
     self.highlights =
         require('notedown.request.highlights').new(buf, view)

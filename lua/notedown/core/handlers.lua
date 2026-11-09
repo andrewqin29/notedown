@@ -1,6 +1,13 @@
 local iter = require('notedown.lib.iter')
 local log = require('notedown.core.log')
-local state = require('notedown.state')
+
+---@class (exact) notedown.Handler
+---@field parse fun(ctx: notedown.handler.Context): notedown.Mark[]
+
+---@class (exact) notedown.handler.Context
+---@field buf integer
+---@field root TSNode
+---@field last boolean
 
 ---@class notedown.Handlers
 local M = {}
@@ -8,10 +15,8 @@ local M = {}
 ---@private
 ---@type table<string, notedown.Handler>
 M.builtin = {
-    html = require('notedown.handler.html'),
     markdown = require('notedown.handler.markdown'),
     markdown_inline = require('notedown.handler.markdown_inline'),
-    yaml = require('notedown.handler.yaml'),
 }
 
 ---@param context notedown.request.Context
@@ -22,11 +27,7 @@ function M.run(context, parser)
     parser:for_each_tree(function(tree, language_tree)
         local root = tree:root()
         local language = language_tree:lang()
-        if
-            (state.custom_handlers[language] or M.builtin[language])
-            and (state.nested or M.level(language_tree) == 1)
-            and context.view:overlaps(root)
-        then
+        if M.builtin[language] and context.view:overlaps(root) then
             local roots = language_roots[language]
             if not roots then
                 roots = {}
@@ -58,40 +59,12 @@ function M.run(context, parser)
 end
 
 ---@private
----@param tree? vim.treesitter.LanguageTree
----@return integer
-function M.level(tree)
-    local result = 0
-    while tree do
-        if tree:lang() == 'markdown' then
-            result = result + 1
-        end
-        tree = tree:parent()
-    end
-    return result
-end
-
----Run custom & builtin handlers when available. Custom handler is always
----executed, builtin handler is skipped if custom does not specify extends.
----@private
 ---@param marks notedown.Mark[]
 ---@param language string
 ---@param ctx notedown.handler.Context
 function M.tree(marks, language, ctx)
     log.buf('trace', 'Language', ctx.buf, language)
-    local custom = state.custom_handlers[language]
-    if custom then
-        log.buf('trace', 'Handler', ctx.buf, 'custom')
-        vim.list_extend(marks, custom.parse(ctx))
-        if not custom.extends then
-            return
-        end
-    end
-    local builtin = M.builtin[language]
-    if builtin then
-        log.buf('trace', 'Handler', ctx.buf, 'builtin')
-        vim.list_extend(marks, builtin.parse(ctx))
-    end
+    vim.list_extend(marks, M.builtin[language].parse(ctx))
 end
 
 return M

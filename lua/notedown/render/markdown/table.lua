@@ -61,7 +61,7 @@ function Render:delimiter()
     local replace = false
     if self.data.layout.wrap and env.win.get(self.context.win, 'wrap') then
         local _, source = delim:line('first', 0)
-        local width = str.width(source) + self:indent():size()
+        local width = str.width(source)
         replace = width > env.win.width(self.context.win)
     end
 
@@ -103,7 +103,7 @@ function Render:row_fits(row)
     end
     if env.win.get(self.context.win, 'wrap') then
         local _, source = row.node:line('first', 0)
-        local width = str.width(source) + self:indent():size() + added
+        local width = str.width(source) + added
         return width <= env.win.width(self.context.win)
     end
     return true
@@ -267,7 +267,7 @@ function Render:border_row(row, position, lines)
         return
     end
 
-    local output = self:indent():line(true):extend(line):get()
+    local output = line:get()
     if lines then
         local index = position == 'above' and 1 or #lines + 1
         table.insert(lines, index, output)

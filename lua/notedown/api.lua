@@ -3,7 +3,6 @@
 ---@field win? integer|integer[]
 ---@field event? string
 ---@field force? boolean
----@field config? notedown.partial.UserConfig
 
 ---@class notedown.Api
 local M = {}
@@ -20,8 +19,7 @@ function M.render(ctx)
     local event = ctx.event or 'Api'
     local force = ctx.force ~= false
 
-    state.get(buf, ctx.config)
-    state.attach()
+    state.get(buf)
 
     for _, win in ipairs(wins) do
         ui.update(buf, win, event, force)
@@ -73,39 +71,6 @@ end
 
 function M.buf_toggle()
     M.set_buf()
-end
-
-function M.preview()
-    require('notedown.core.preview').open()
-end
-
-function M.log()
-    require('notedown.core.log').open()
-end
-
-function M.expand()
-    require('notedown.state').modify_anti_conceal(1)
-    M.enable()
-end
-
-function M.contract()
-    require('notedown.state').modify_anti_conceal(-1)
-    M.enable()
-end
-
-function M.debug()
-    require('notedown.debug.marks').show()
-end
-
-function M.config()
-    local difference = require('notedown.state').difference()
-    if not difference then
-        -- selene: allow(deprecated)
-        vim.print('default configuration')
-    else
-        -- selene: allow(deprecated)
-        vim.print(difference)
-    end
 end
 
 return M

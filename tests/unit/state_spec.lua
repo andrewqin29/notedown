@@ -21,19 +21,6 @@ describe('state', function()
         validate({}, {})
     end)
 
-    it('buftype override', function()
-        local config = { sign = { enabled = true } }
-        local path = { 'sign', 'enabled' }
-
-        vim.bo.buftype = ''
-        validate(config, {})
-        option(true, path)
-
-        vim.bo.buftype = 'nofile'
-        validate(config, {})
-        option(false, path)
-    end)
-
     it('anti conceal preset', function()
         local path = { 'win_options', 'concealcursor', 'rendered' }
 
@@ -49,24 +36,16 @@ describe('state', function()
 
     it('valid', function()
         local config = {
-            overrides = {
-                buftype = {
-                    nofile = {
-                        enabled = false,
-                        render_modes = {},
-                        anti_conceal = {},
-                        heading = {},
-                        dash = {},
-                        bullet = {},
-                        checkbox = { unchecked = {}, checked = {} },
-                        quote = {},
-                        pipe_table = {},
-                        link = {},
-                        sign = {},
-                        win_options = {},
-                    },
-                },
-            },
+            enabled = false,
+            render_modes = {},
+            anti_conceal = {},
+            heading = {},
+            dash = {},
+            bullet = {},
+            checkbox = { unchecked = {}, checked = {} },
+            quote = {},
+            pipe_table = {},
+            win_options = {},
         }
         validate(config, {})
     end)
@@ -76,65 +55,38 @@ describe('state', function()
             additional = true,
             anti_conceal = { ignore = { additional = true } },
             checkbox = { checked = { additional = true } },
-            overrides = {
-                additional = true,
-                buftype = { nofile = { additional = true } },
-            },
         }
         local expected = {
             'additional - expected: nil, got: boolean',
             'anti_conceal.ignore.additional - expected: nil, got: boolean',
             'checkbox.checked.additional - expected: nil, got: boolean',
-            'overrides.additional - expected: nil, got: boolean',
-            'overrides.buftype.nofile.additional - expected: nil, got: boolean',
         }
         validate(config, expected)
     end)
 
     it('type', function()
         local config = {
-            anti_conceal = { ignore = { sign = 'invalid' } },
+            anti_conceal = { ignore = { quote = 'invalid' } },
             bullet = { icons = 0 },
             checkbox = { checked = false, unchecked = { icon = false } },
-            custom_handlers = {
-                markdown = { extends = 'invalid', parse = 'invalid' },
-            },
             debounce = {},
             enabled = 'invalid',
-            file_types = { other = false },
             heading = { enabled = 'invalid' },
             log_level = 'invalid',
             log_runtime = 'invalid',
-            max_file_size = true,
-            overrides = {
-                buftype = {
-                    [1] = false,
-                    nofile = { sign = { highlight = false } },
-                    other = false,
-                },
-                filetype = 'invalid',
-            },
             padding = { highlight = true },
             render_modes = 'invalid',
         }
         local expected = {
-            'anti_conceal.ignore.sign - expected: string[]|boolean, got: "invalid"',
+            'anti_conceal.ignore.quote - expected: string[]|boolean, got: "invalid"',
             'bullet.icons - expected: string|string[]|string[][]|function, got: 0',
             'checkbox.checked - expected: table, got: boolean',
             'checkbox.unchecked.icon - expected: string, got: boolean',
-            'custom_handlers.markdown.extends - expected: boolean?, got: string',
-            'custom_handlers.markdown.parse - expected: function, got: string',
             'debounce - expected: number, got: table',
             'enabled - expected: boolean, got: string',
-            'file_types.other - expected: nil, got: boolean',
             'heading.enabled - expected: boolean, got: string',
             'log_level - expected: "debug"|"error"|"info"|"off"|"trace"|"warn", got: "invalid"',
             'log_runtime - expected: boolean, got: string',
-            'max_file_size - expected: number, got: boolean',
-            'overrides.buftype.1 - expected: nil, got: boolean',
-            'overrides.buftype.nofile.sign.highlight - expected: string?, got: boolean',
-            'overrides.buftype.other - expected: table?, got: boolean',
-            'overrides.filetype - expected: map<string, table>?, got: string',
             'padding.highlight - expected: string, got: boolean',
             'render_modes - expected: string[]|boolean, got: "invalid"',
         }

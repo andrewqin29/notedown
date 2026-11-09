@@ -2,10 +2,8 @@ local icons = require('notedown.lib.icons')
 local state = require('notedown.state')
 
 ---@alias notedown.health.Language
----| 'html'
 ---| 'markdown'
 ---| 'markdown_inline'
----| 'yaml'
 
 ---@class notedown.Health
 local M = {}
@@ -29,18 +27,8 @@ function M.check()
         end
     end
 
-    local config = state.get(0)
-    local html = config.html
-    local yaml = config.yaml
-
     M.ts_info('markdown', true, true)
     M.ts_info('markdown_inline', true, false)
-    if html.enabled then
-        M.ts_info('html', false, false)
-    end
-    if yaml.enabled then
-        M.ts_info('yaml', false, false)
-    end
 
     M.start('icons')
     local provider = icons.name()

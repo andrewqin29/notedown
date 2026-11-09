@@ -22,10 +22,7 @@ M.anti_conceal.element = {
     head_background = 'head_background',
     head_border = 'head_border',
     head_icon = 'head_icon',
-    indent = 'indent',
-    link = 'link',
     quote = 'quote',
-    sign = 'sign',
     table_border = 'table_border',
     virtual_lines = 'virtual_lines',
 }
@@ -47,15 +44,10 @@ M.anti_conceal.default = {
     --   check_icon, check_scope
     --   dash
     --   head_background, head_border, head_icon
-    --   indent
-    --   link
     --   quote
-    --   sign
     --   table_border
     --   virtual_lines
     ignore = {
-        indent = true,
-        sign = true,
         virtual_lines = true,
     },
 }
@@ -198,9 +190,6 @@ function M.bullet.schema()
     })
 end
 
----@class (exact) notedown.raw.Config
----@field raw string
-
 ---@class notedown.checkbox.Settings
 M.checkbox = {}
 
@@ -210,7 +199,6 @@ M.checkbox = {}
 ---@field right_pad integer
 ---@field unchecked notedown.checkbox.component.Config
 ---@field checked notedown.checkbox.component.Config
----@field custom table<string, notedown.checkbox.custom.Config>
 ---@field scope_priority? integer
 
 ---@class (exact) notedown.checkbox.component.Config
@@ -218,15 +206,9 @@ M.checkbox = {}
 ---@field highlight string
 ---@field scope_highlight? string
 
----@class (exact) notedown.checkbox.custom.Config: notedown.raw.Config
----@field rendered string
----@field highlight string
----@field scope_highlight? string
-
 ---@type notedown.checkbox.Config
 M.checkbox.default = {
-    -- Checkboxes are a special instance of a 'list_item' that start with a 'shortcut_link'.
-    -- There are two special states for unchecked & checked defined in the markdown grammar.
+    -- Checkboxes: '[ ]' and '[x]' at the start of a list item.
 
     -- Turn on / off checkbox state rendering.
     enabled = true,
@@ -254,17 +236,6 @@ M.checkbox.default = {
         -- Highlight for item associated with checked checkbox.
         scope_highlight = nil,
     },
-    -- Define custom checkbox states, more involved, not part of the markdown grammar.
-    -- As a result this requires neovim >= 0.10.0 since it relies on 'inline' extmarks.
-    -- The key is for healthcheck and to allow users to change its values, value type below.
-    -- | raw             | matched against the raw text of a 'shortcut_link'           |
-    -- | rendered        | replaces the 'raw' value when rendering                     |
-    -- | highlight       | highlight for the 'rendered' icon                           |
-    -- | scope_highlight | optional highlight for item associated with custom checkbox |
-    -- stylua: ignore
-    custom = {
-        todo = { raw = '[-]', rendered = '󰥔 ', highlight = 'NotedownTodo', scope_highlight = nil },
-    },
     -- Priority to assign to scope highlight.
     scope_priority = nil,
 }
@@ -279,22 +250,12 @@ function M.checkbox.schema()
             scope_highlight = { optional = true, type = 'string' },
         },
     }
-    ---@type notedown.Schema
-    local custom = {
-        record = {
-            raw = { type = 'string' },
-            rendered = { type = 'string' },
-            highlight = { type = 'string' },
-            scope_highlight = { optional = true, type = 'string' },
-        },
-    }
     return M.base.schema({
         bullet = { type = 'boolean' },
         left_pad = { type = 'number' },
         right_pad = { type = 'number' },
         unchecked = component,
         checked = component,
-        custom = { map = { { type = 'string' }, custom } },
         scope_priority = { optional = true, type = 'number' },
     })
 end
@@ -400,46 +361,13 @@ function M.document.schema()
     })
 end
 
----@class notedown.handlers.Settings
-M.handlers = {}
-
----@class (exact) notedown.Handler
----@field extends? boolean
----@field parse fun(ctx: notedown.handler.Context): notedown.Mark[]
-
----@class (exact) notedown.handler.Context
----@field buf integer
----@field root TSNode
----@field last boolean
-
----@type table<string, notedown.Handler>
-M.handlers.default = {
-    -- Mapping from treesitter language to user defined handlers.
-    -- @see [Custom Handlers](doc/custom-handlers.md)
-}
-
----@return notedown.Schema
-function M.handlers.schema()
-    ---@type notedown.Schema
-    local handler = {
-        record = {
-            extends = { optional = true, type = 'boolean' },
-            parse = { type = 'function' },
-        },
-    }
-    ---@type notedown.Schema
-    return { map = { { type = 'string' }, handler } }
-end
-
 ---@class notedown.heading.Settings
 M.heading = {}
 
 ---@class (exact) notedown.heading.Config: notedown.base.Config
 ---@field atx boolean
----@field sign boolean
 ---@field icons notedown.heading.String
 ---@field position notedown.heading.Position
----@field signs string[]
 ---@field width notedown.heading.Width|(notedown.heading.Width)[]
 ---@field left_margin number|number[]
 ---@field left_pad number|number[]
@@ -494,8 +422,6 @@ M.heading.default = {
     render_modes = false,
     -- Turn on / off atx heading rendering.
     atx = true,
-    -- Turn on / off sign column related rendering.
-    sign = true,
     -- Replaces '#+' of 'atx_h._marker'.
     -- Output is evaluated depending on the type.
     -- | function | `value(context)`              |
@@ -507,9 +433,6 @@ M.heading.default = {
     -- | inline  | '#'s are concealed and icon is inlined on left side          |
     -- | overlay | icon is left padded with spaces and overlayed hiding all '#' |
     position = 'overlay',
-    -- Added to the sign column if enabled.
-    -- Output is evaluated by `cycle(value, context.level)`.
-    signs = { '󰫎 ' },
     -- Width of the heading background.
     -- | block | width of the heading text |
     -- | full  | full width of the window  |
@@ -585,12 +508,10 @@ function M.heading.schema()
     }
     return M.base.schema({
         atx = { type = 'boolean' },
-        sign = { type = 'boolean' },
         icons = {
             union = { { list = { type = 'string' } }, { type = 'function' } },
         },
         position = { enum = M.heading.position },
-        signs = { list = { type = 'string' } },
         width = {
             union = { { list = width }, width },
         },
@@ -617,493 +538,6 @@ function M.heading.schema()
         foregrounds = { list = { type = 'string' } },
         custom = { map = { { type = 'string' }, custom } },
     })
-end
-
----@class notedown.html.Settings
-M.html = {}
-
----@class (exact) notedown.html.Config: notedown.base.Config
----@field comment notedown.html.comment.Config
----@field tag table<string, notedown.html.Tag>
-
----@class (exact) notedown.html.comment.Config
----@field conceal boolean
----@field text? notedown.html.comment.String
----@field highlight string
-
----@class (exact) notedown.html.comment.Context
----@field text string
-
----@alias notedown.html.comment.String
----| string
----| fun(ctx: notedown.html.comment.Context): string?
-
----@class (exact) notedown.html.Tag
----@field icon? string
----@field highlight? string
----@field scope_highlight? string
-
----@type notedown.html.Config
-M.html.default = {
-    -- Turn on / off all HTML rendering.
-    enabled = true,
-    -- Additional modes to render HTML.
-    render_modes = false,
-    comment = {
-        -- Useful context to have when evaluating values.
-        -- | text | text value of the comment node |
-
-        -- Turn on / off HTML comment concealing.
-        conceal = true,
-        -- Text to inline before the concealed comment.
-        -- Output is evaluated depending on the type.
-        -- | function | `value(context)` |
-        -- | string   | `value`          |
-        -- | nil      | nothing          |
-        text = nil,
-        -- Highlight for the inlined text.
-        highlight = 'NotedownHtmlComment',
-    },
-    -- HTML tags whose start and end will be hidden and icon shown.
-    -- The key is matched against the tag name, value type below.
-    -- | icon            | optional icon inlined at start of tag           |
-    -- | highlight       | optional highlight for the icon                 |
-    -- | scope_highlight | optional highlight for item associated with tag |
-    tag = {},
-}
-
----@return notedown.Schema
-function M.html.schema()
-    ---@type notedown.Schema
-    local tag = {
-        record = {
-            icon = { optional = true, type = 'string' },
-            highlight = { optional = true, type = 'string' },
-            scope_highlight = { optional = true, type = 'string' },
-        },
-    }
-    return M.base.schema({
-        comment = {
-            record = {
-                conceal = { type = 'boolean' },
-                text = {
-                    optional = true,
-                    union = { { type = 'string' }, { type = 'function' } },
-                },
-                highlight = { type = 'string' },
-            },
-        },
-        tag = { map = { { type = 'string' }, tag } },
-    })
-end
-
----@class notedown.indent.Settings
-M.indent = {}
-
----@class (exact) notedown.indent.Config: notedown.base.Config
----@field per_level integer
----@field skip_level integer
----@field skip_heading boolean
----@field icon string
----@field priority integer
----@field highlight string
-
----@type notedown.indent.Config
-M.indent.default = {
-    -- Mimic org-indent-mode behavior by indenting everything under a heading based on the
-    -- level of the heading. Indenting starts from level 2 headings onward by default.
-
-    -- Turn on / off org-indent-mode.
-    enabled = false,
-    -- Additional modes to render indents.
-    render_modes = false,
-    -- Amount of additional padding added for each heading level.
-    per_level = 2,
-    -- Heading levels <= this value will not be indented.
-    -- Use 0 to begin indenting from the very first level.
-    skip_level = 1,
-    -- Do not indent heading titles, only the body.
-    skip_heading = false,
-    -- Prefix added when indenting, one per level.
-    icon = '▎',
-    -- Priority to assign to extmarks.
-    priority = 0,
-    -- Applied to icon.
-    highlight = 'NotedownIndent',
-}
-
----@return notedown.Schema
-function M.indent.schema()
-    return M.base.schema({
-        per_level = { type = 'number' },
-        skip_level = { type = 'number' },
-        skip_heading = { type = 'boolean' },
-        icon = { type = 'string' },
-        priority = { type = 'number' },
-        highlight = { type = 'string' },
-    })
-end
-
----@class notedown.injections.Settings
-M.injections = {}
-
----@alias notedown.injection.Configs table<string, notedown.injection.Config>
-
----@class (exact) notedown.injection.Config
----@field enabled boolean
----@field query string
-
----@type notedown.injection.Configs
-M.injections.default = {
-    -- Out of the box language injections for known filetypes that allow markdown to be interpreted
-    -- in specified locations, see :h treesitter-language-injections.
-    -- Set enabled to false in order to disable.
-
-    gitcommit = {
-        enabled = true,
-        query = [[
-            ((message) @injection.content
-                (#set! injection.combined)
-                (#set! injection.include-children)
-                (#set! injection.language "markdown"))
-        ]],
-    },
-}
-
----@return notedown.Schema
-function M.injections.schema()
-    ---@type notedown.Schema
-    local injection = {
-        record = {
-            enabled = { type = 'boolean' },
-            query = { type = 'string' },
-        },
-    }
-    ---@type notedown.Schema
-    return { map = { { type = 'string' }, injection } }
-end
-
----@class notedown.inline.highlight.Settings
-M.inline_highlight = {}
-
----@class (exact) notedown.inline.highlight.Config: notedown.base.Config
----@field highlight string
----@field custom table<string, notedown.inline.highlight.custom.Config>
-
----@class (exact) notedown.inline.highlight.custom.Config
----@field prefix string
----@field highlight string
-
----@type notedown.inline.highlight.Config
-M.inline_highlight.default = {
-    -- Mimics Obsidian inline highlights when content is surrounded by double equals.
-    -- The equals on both ends are concealed and the inner content is highlighted.
-
-    -- Turn on / off inline highlight rendering.
-    enabled = true,
-    -- Additional modes to render inline highlights.
-    render_modes = false,
-    -- Applies to background of surrounded text.
-    highlight = 'NotedownInlineHighlight',
-    -- Define custom highlights based on text prefix.
-    -- The key is for healthcheck and to allow users to change its values, value type below.
-    -- | prefix    | matched against text body, @see :h vim.startswith() |
-    -- | highlight | highlight for text body                             |
-    custom = {},
-}
-
----@return notedown.Schema
-function M.inline_highlight.schema()
-    ---@type notedown.Schema
-    local custom = {
-        record = {
-            prefix = { type = 'string' },
-            highlight = { type = 'string' },
-        },
-    }
-    return M.base.schema({
-        highlight = { type = 'string' },
-        custom = { map = { { type = 'string' }, custom } },
-    })
-end
-
----@class notedown.link.Settings
-M.link = {}
-
----@class (exact) notedown.link.Config: notedown.base.Config
----@field footnote notedown.link.footnote.Config
----@field image string
----@field image_custom boolean
----@field email string
----@field hyperlink string
----@field highlight string
----@field highlight_title string
----@field wiki notedown.link.wiki.Config
----@field custom table<string, notedown.link.custom.Config>
-
----@class (exact) notedown.link.footnote.Context
----@field text string
-
----@class (exact) notedown.link.footnote.Config
----@field enabled boolean
----@field icon string
----@field body fun(ctx: notedown.link.footnote.Context): string?
----@field superscript boolean
----@field prefix string
----@field suffix string
-
----@class (exact) notedown.link.wiki.Context
----@field buf integer
----@field row integer
----@field start_col integer
----@field end_col integer
----@field destination string
----@field alias? string
-
----@class (exact) notedown.link.wiki.Config
----@field enabled boolean
----@field icon string
----@field conceal_destination boolean
----@field body fun(ctx: notedown.link.wiki.Context): notedown.mark.Text|string?
----@field highlight string
----@field scope_highlight? string
-
----@class (exact) notedown.link.custom.Config
----@field icon string
----@field pattern string
----@field kind? notedown.link.custom.Kind
----@field priority? integer
----@field highlight? string
-
----@enum notedown.link.custom.Kind
-M.link.kind = {
-    pattern = 'pattern',
-    prefix = 'prefix',
-    suffix = 'suffix',
-    url = 'url',
-}
-
----@type notedown.link.Config
-M.link.default = {
-    -- Turn on / off inline link icon rendering.
-    enabled = true,
-    -- Additional modes to render links.
-    render_modes = false,
-    -- How to handle footnote links, start with a '^'.
-    footnote = {
-        -- Turn on / off footnote rendering.
-        enabled = true,
-        -- Inlined with content.
-        icon = '󰯔 ',
-        -- Custom processing for footnote body to show.
-        -- Runs before prefix / suffix are added and superscript processing.
-        body = function(ctx)
-            return ctx.text
-        end,
-        -- Replace value with superscript equivalent.
-        superscript = true,
-        -- Added before link content.
-        prefix = '',
-        -- Added after link content.
-        suffix = '',
-    },
-    -- Inlined with 'image' elements.
-    image = '󰥶 ',
-    -- Check custom for 'image' elements.
-    image_custom = true,
-    -- Inlined with 'email_autolink' elements.
-    email = '󰀓 ',
-    -- Fallback icon for 'inline_link' and 'uri_autolink' elements.
-    hyperlink = '󰌹 ',
-    -- Applies to the inlined icon as a fallback.
-    highlight = 'NotedownLink',
-    -- Applies to the link title.
-    highlight_title = 'NotedownLinkTitle',
-    -- Applies to WikiLink elements.
-    wiki = {
-        -- Turn on / off WikiLink rendering.
-        enabled = true,
-        -- Inlined with content.
-        icon = '󱗖 ',
-        -- Hide destination if there is an alias.
-        conceal_destination = true,
-        -- Custom processing for WikiLink body to show.
-        body = function()
-            return nil
-        end,
-        -- Applies to the inlined icon.
-        highlight = 'NotedownWikiLink',
-        -- Highlight for item associated with the WikiLink.
-        scope_highlight = nil,
-    },
-    -- Define custom destination patterns so icons can quickly inform you of what a link
-    -- contains. Applies to 'image', 'inline_link', 'uri_autolink', and WikiLink nodes.
-    -- When multiple patterns match a link the one with the longer pattern is used.
-    -- The key is for healthcheck and to allow users to change its values, value type below.
-    -- | icon      | gets inlined before the link text                               |
-    -- | pattern   | matched against the destination text                            |
-    -- | kind      | optional determines how pattern is checked                      |
-    -- |           | pattern | @see :h lua-patterns, is the default if not set       |
-    -- |           | prefix  | @see :h vim.startswith()                              |
-    -- |           | suffix  | @see :h vim.endswith()                                |
-    -- |           | url     | similar to pattern with additional prefix checks      |
-    -- | priority  | optional used when multiple match, uses pattern length if empty |
-    -- | highlight | optional highlight for 'icon', uses fallback highlight if empty |
-    -- stylua: ignore
-    custom = {
-        web = { icon = '󰖟 ', pattern = '^http' },
-        apple = { icon = ' ', pattern = 'apple%.com', kind = 'url' },
-        discord = { icon = '󰙯 ', pattern = 'discord%.com', kind = 'url' },
-        github = { icon = '󰊤 ', pattern = 'github%.com', kind = 'url' },
-        gitlab = { icon = '󰮠 ', pattern = 'gitlab%.com', kind = 'url' },
-        google = { icon = '󰊭 ', pattern = 'google%.com', kind = 'url' },
-        hackernews = { icon = ' ', pattern = 'ycombinator%.com', kind = 'url' },
-        linkedin = { icon = '󰌻 ', pattern = 'linkedin%.com', kind = 'url' },
-        microsoft = { icon = ' ', pattern = 'microsoft%.com', kind = 'url' },
-        neovim = { icon = ' ', pattern = 'neovim%.io', kind = 'url' },
-        reddit = { icon = '󰑍 ', pattern = 'reddit%.com', kind = 'url' },
-        slack = { icon = '󰒱 ', pattern = 'slack%.com', kind = 'url' },
-        stackoverflow = { icon = '󰓌 ', pattern = 'stackoverflow%.com', kind = 'url' },
-        steam = { icon = ' ', pattern = 'steampowered%.com', kind = 'url' },
-        twitter = { icon = ' ', pattern = 'twitter%.com', kind = 'url' },
-        wikipedia = { icon = '󰖬 ', pattern = 'wikipedia%.org', kind = 'url' },
-        x = { icon = ' ', pattern = 'x%.com', kind = 'url' },
-        youtube = { icon = '󰗃 ', pattern = 'youtube[^.]*%.com', kind = 'url' },
-        youtube_short = { icon = '󰗃 ', pattern = 'youtu%.be', kind = 'url' },
-    },
-}
-
----@return notedown.Schema
-function M.link.schema()
-    ---@type notedown.Schema
-    local pattern = {
-        record = {
-            icon = { type = 'string' },
-            pattern = { type = 'string' },
-            kind = { optional = true, enum = M.link.kind },
-            priority = { optional = true, type = 'number' },
-            highlight = { optional = true, type = 'string' },
-        },
-    }
-    return M.base.schema({
-        footnote = {
-            record = {
-                enabled = { type = 'boolean' },
-                icon = { type = 'string' },
-                body = { type = 'function' },
-                superscript = { type = 'boolean' },
-                prefix = { type = 'string' },
-                suffix = { type = 'string' },
-            },
-        },
-        image = { type = 'string' },
-        image_custom = { type = 'boolean' },
-        email = { type = 'string' },
-        hyperlink = { type = 'string' },
-        highlight = { type = 'string' },
-        highlight_title = { type = 'string' },
-        wiki = {
-            record = {
-                enabled = { type = 'boolean' },
-                icon = { type = 'string' },
-                conceal_destination = { type = 'boolean' },
-                body = { type = 'function' },
-                highlight = { type = 'string' },
-                scope_highlight = { optional = true, type = 'string' },
-            },
-        },
-        custom = { map = { { type = 'string' }, pattern } },
-    })
-end
-
----@class notedown.on.Settings
-M.on = {}
-
----@class (exact) notedown.on.Config
----@field attach fun(ctx: notedown.on.attach.Context)
----@field initial fun(ctx: notedown.on.render.Context)
----@field render fun(ctx: notedown.on.render.Context)
----@field clear fun(ctx: notedown.on.render.Context)
-
----@class (exact) notedown.on.attach.Context
----@field buf integer
-
----@class (exact) notedown.on.render.Context
----@field buf integer
----@field win integer
-
----@type notedown.on.Config
-M.on.default = {
-    -- Called when plugin initially attaches to a buffer.
-    attach = function() end,
-    -- Called before adding marks to the buffer for the first time.
-    initial = function() end,
-    -- Called after plugin renders a buffer.
-    render = function() end,
-    -- Called after plugin clears a buffer.
-    clear = function() end,
-}
-
----@return notedown.Schema
-function M.on.schema()
-    ---@type notedown.Schema
-    return {
-        record = {
-            attach = { type = 'function' },
-            initial = { type = 'function' },
-            render = { type = 'function' },
-            clear = { type = 'function' },
-        },
-    }
-end
-
----@class notedown.overrides.Settings
-M.overrides = {}
-
----@class (exact) notedown.overrides.Config
----@field buflisted table<boolean, notedown.partial.UserConfig>
----@field buftype table<string, notedown.partial.UserConfig>
----@field filetype table<string, notedown.partial.UserConfig>
----@field preview notedown.partial.UserConfig
-
----@type notedown.overrides.Config
-M.overrides.default = {
-    -- More granular configuration mechanism, allows different aspects of buffers to have their own
-    -- behavior. Values default to the top level configuration if no override is provided. Supports
-    -- the following fields:
-    --   enabled, render_modes, debounce, anti_conceal, bullet, checkbox, dash,
-    --   document, heading, html, indent, inline_highlight, link, padding, paragraph,
-    --   pipe_table, quote, sign, win_options, yaml
-
-    -- Override for different buflisted values, @see :h 'buflisted'.
-    buflisted = {},
-    -- Override for different buftype values, @see :h 'buftype'.
-    buftype = {
-        nofile = {
-            render_modes = true,
-            sign = { enabled = false },
-        },
-    },
-    -- Override for different filetype values, @see :h 'filetype'.
-    filetype = {},
-    -- Override for preview buffer.
-    preview = {
-        render_modes = true,
-    },
-}
-
----@return notedown.Schema
-function M.overrides.schema()
-    local Config = require('notedown.lib.config')
-    ---@type notedown.Schema
-    return {
-        record = {
-            buflisted = { map = { { type = 'boolean' }, Config.schema({}) } },
-            buftype = { map = { { type = 'string' }, Config.schema({}) } },
-            filetype = { map = { { type = 'string' }, Config.schema({}) } },
-            preview = Config.schema({}),
-        },
-    }
 end
 
 ---@class notedown.padding.Settings
@@ -1170,50 +604,120 @@ function M.paragraph.schema()
     })
 end
 
----@class notedown.patterns.Settings
-M.patterns = {}
+---@class notedown.quote.Settings
+M.quote = {}
 
----@alias notedown.pattern.Configs table<string, notedown.pattern.Config>
+---@class (exact) notedown.quote.Config: notedown.base.Config
+---@field icon string|string[]
+---@field repeat_linebreak boolean
+---@field highlight string|string[]
 
----@class (exact) notedown.pattern.Config
----@field disable boolean
----@field directives notedown.directive.Config[]
-
----@class (exact) notedown.directive.Config
----@field id integer
----@field name string
-
----@type notedown.pattern.Configs
-M.patterns.default = {
-    -- Highlight patterns to disable for filetypes, i.e. lines concealed around code blocks
-
-    markdown = {
-        disable = true,
-        directives = {
-            { id = 17, name = 'conceal_lines' },
-            { id = 18, name = 'conceal_lines' },
-        },
+---@type notedown.quote.Config
+M.quote.default = {
+    -- Turn on / off block quote rendering.
+    enabled = true,
+    -- Additional modes to render quotes.
+    render_modes = false,
+    -- Replaces '>' of 'block_quote'.
+    icon = '▋',
+    -- Whether to repeat icon on wrapped lines. Requires neovim >= 0.10. This will obscure text
+    -- if incorrectly configured with :h 'showbreak', :h 'breakindent' and :h 'breakindentopt'.
+    -- A combination of these that is likely to work follows.
+    -- | showbreak      | '  ' (2 spaces)   |
+    -- | breakindent    | true              |
+    -- | breakindentopt | '' (empty string) |
+    -- These are not validated by this plugin. If you want to avoid adding these to your main
+    -- configuration then set them in win_options for this plugin.
+    repeat_linebreak = false,
+    -- Highlight for the quote icon.
+    -- If a list is provided output is evaluated by `cycle(value, level)`.
+    highlight = {
+        'NotedownQuote1',
+        'NotedownQuote2',
+        'NotedownQuote3',
+        'NotedownQuote4',
+        'NotedownQuote5',
+        'NotedownQuote6',
     },
 }
 
 ---@return notedown.Schema
-function M.patterns.schema()
+function M.quote.schema()
+    return M.base.schema({
+        icon = {
+            union = { { list = { type = 'string' } }, { type = 'string' } },
+        },
+        repeat_linebreak = { type = 'boolean' },
+        highlight = {
+            union = { { list = { type = 'string' } }, { type = 'string' } },
+        },
+    })
+end
+
+---@class notedown.render.Settings
+M.render = {}
+
+---@class (exact) notedown.render.Config
+---@field diff boolean
+
+---@type notedown.render.Config
+M.render.default = {
+    -- Whether to render when window is in diff-mode.
+    diff = false,
+}
+
+---@return notedown.Schema
+function M.render.schema()
     ---@type notedown.Schema
-    local directive = {
+    return {
         record = {
-            id = { type = 'number' },
-            name = { type = 'string' },
+            diff = { type = 'boolean' },
         },
     }
+end
+
+---@class notedown.inline.highlight.Settings
+M.inline_highlight = {}
+
+---@class (exact) notedown.inline.highlight.Config: notedown.base.Config
+---@field highlight string
+---@field custom table<string, notedown.inline.highlight.custom.Config>
+
+---@class (exact) notedown.inline.highlight.custom.Config
+---@field prefix string
+---@field highlight string
+
+---@type notedown.inline.highlight.Config
+M.inline_highlight.default = {
+    -- Mimics Obsidian inline highlights when content is surrounded by double equals.
+    -- The equals on both ends are concealed and the inner content is highlighted.
+
+    -- Turn on / off inline highlight rendering.
+    enabled = true,
+    -- Additional modes to render inline highlights.
+    render_modes = false,
+    -- Applies to background of surrounded text.
+    highlight = 'NotedownInlineHighlight',
+    -- Define custom highlights based on text prefix.
+    -- The key is for healthcheck and to allow users to change its values, value type below.
+    -- | prefix    | matched against text body, @see :h vim.startswith() |
+    -- | highlight | highlight for text body                             |
+    custom = {},
+}
+
+---@return notedown.Schema
+function M.inline_highlight.schema()
     ---@type notedown.Schema
-    local pattern = {
+    local custom = {
         record = {
-            disable = { type = 'boolean' },
-            directives = { list = directive },
+            prefix = { type = 'string' },
+            highlight = { type = 'string' },
         },
     }
-    ---@type notedown.Schema
-    return { map = { { type = 'string' }, pattern } }
+    return M.base.schema({
+        highlight = { type = 'string' },
+        custom = { map = { { type = 'string' }, custom } },
+    })
 end
 
 ---@class notedown.pipe.table.Settings
@@ -1342,108 +846,6 @@ function M.pipe_table.schema()
     })
 end
 
----@class notedown.quote.Settings
-M.quote = {}
-
----@class (exact) notedown.quote.Config: notedown.base.Config
----@field icon string|string[]
----@field repeat_linebreak boolean
----@field highlight string|string[]
-
----@type notedown.quote.Config
-M.quote.default = {
-    -- Turn on / off block quote rendering.
-    enabled = true,
-    -- Additional modes to render quotes.
-    render_modes = false,
-    -- Replaces '>' of 'block_quote'.
-    icon = '▋',
-    -- Whether to repeat icon on wrapped lines. Requires neovim >= 0.10. This will obscure text
-    -- if incorrectly configured with :h 'showbreak', :h 'breakindent' and :h 'breakindentopt'.
-    -- A combination of these that is likely to work follows.
-    -- | showbreak      | '  ' (2 spaces)   |
-    -- | breakindent    | true              |
-    -- | breakindentopt | '' (empty string) |
-    -- These are not validated by this plugin. If you want to avoid adding these to your main
-    -- configuration then set them in win_options for this plugin.
-    repeat_linebreak = false,
-    -- Highlight for the quote icon.
-    -- If a list is provided output is evaluated by `cycle(value, level)`.
-    highlight = {
-        'NotedownQuote1',
-        'NotedownQuote2',
-        'NotedownQuote3',
-        'NotedownQuote4',
-        'NotedownQuote5',
-        'NotedownQuote6',
-    },
-}
-
----@return notedown.Schema
-function M.quote.schema()
-    return M.base.schema({
-        icon = {
-            union = { { list = { type = 'string' } }, { type = 'string' } },
-        },
-        repeat_linebreak = { type = 'boolean' },
-        highlight = {
-            union = { { list = { type = 'string' } }, { type = 'string' } },
-        },
-    })
-end
-
----@class notedown.render.Settings
-M.render = {}
-
----@class (exact) notedown.render.Config
----@field diff boolean
-
----@type notedown.render.Config
-M.render.default = {
-    -- Whether to render when window is in diff-mode.
-    diff = false,
-}
-
----@return notedown.Schema
-function M.render.schema()
-    ---@type notedown.Schema
-    return {
-        record = {
-            diff = { type = 'boolean' },
-        },
-    }
-end
-
----@class notedown.sign.Settings
-M.sign = {}
-
----@class (exact) notedown.sign.Config
----@field enabled boolean
----@field priority? integer
----@field highlight string
-
----@type notedown.sign.Config
-M.sign.default = {
-    -- Turn on / off sign rendering.
-    enabled = true,
-    -- Priority to assign to sign.
-    priority = nil,
-    -- Applies to background of sign text.
-    highlight = 'NotedownSign',
-}
-
----@return notedown.Schema
-function M.sign.schema()
-    ---@type notedown.Schema
-    return {
-        record = {
-            enabled = { type = 'boolean' },
-            priority = { optional = true, type = 'number' },
-            highlight = { type = 'string' },
-        },
-    }
-end
-
 ---@class notedown.win.options.Settings
 M.win_options = {}
 
@@ -1489,24 +891,6 @@ function M.win_options.schema()
     local option = { record = { default = value, rendered = value } }
     ---@type notedown.Schema
     return { map = { { type = 'string' }, option } }
-end
-
----@class notedown.yaml.Settings
-M.yaml = {}
-
----@class (exact) notedown.yaml.Config: notedown.base.Config
-
----@type notedown.yaml.Config
-M.yaml.default = {
-    -- Turn on / off all yaml rendering.
-    enabled = true,
-    -- Additional modes to render yaml.
-    render_modes = false,
-}
-
----@return notedown.Schema
-function M.yaml.schema()
-    return M.base.schema({})
 end
 
 return M
