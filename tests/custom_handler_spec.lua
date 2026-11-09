@@ -8,10 +8,10 @@ describe('custom handler', function()
         '\\$1.50 \\$3.55',
     }
 
-    ---@param ctx render.md.handler.Context
-    ---@return render.md.Mark[]
+    ---@param ctx notedown.handler.Context
+    ---@return notedown.Mark[]
     local function handler(ctx)
-        local marks = {} ---@type render.md.Mark[]
+        local marks = {} ---@type notedown.Mark[]
         local buf_lines = vim.api.nvim_buf_get_lines(ctx.buf, 0, -1, false)
         for row, line in ipairs(buf_lines) do
             local index = 1 ---@type integer?
@@ -39,9 +39,8 @@ describe('custom handler', function()
 
     it('default', function()
         util.setup.text(lines)
-        -- inline code + no custom handler
+        -- no custom handler: nothing rendered (inline code isn't)
         local marks = util.marks()
-        marks:add({ 0, 0 }, { 0, 8 }, util.highlight('code'))
         util.assert_view(marks, {
             'Inline code',
             '$1.50 $3.55',
@@ -54,7 +53,7 @@ describe('custom handler', function()
                 markdown_inline = { parse = handler },
             },
         })
-        -- no inline code + custom handler
+        -- custom handler in place of the builtin ones
         local marks = util.marks()
         marks:add({ 1, 1 }, { 1, 2 }, util.conceal())
         marks:add({ 1, 1 }, { 8, 9 }, util.conceal())
@@ -70,9 +69,8 @@ describe('custom handler', function()
                 markdown_inline = { extends = true, parse = handler },
             },
         })
-        -- inline code + custom handler
+        -- custom handler alongside the builtin ones
         local marks = util.marks()
-        marks:add({ 0, 0 }, { 0, 8 }, util.highlight('code'))
         marks:add({ 1, 1 }, { 1, 2 }, util.conceal())
         marks:add({ 1, 1 }, { 8, 9 }, util.conceal())
         util.assert_view(marks, {

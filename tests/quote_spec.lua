@@ -5,13 +5,13 @@ local util = require('tests.util')
 describe('quote', function()
     it('nested', function()
         util.setup.text({
-            '> [!IMPORTANT]',
+            '> Important',
             '>',
             '> Important',
             '>',
             '> > Normal',
             '> > Note',
-            '> > > [!CAUTION]',
+            '> > > Caution',
             '> > > Lookout',
             '> > >',
             '> Important',
@@ -21,17 +21,13 @@ describe('quote', function()
         local marks, row = util.marks(), util.row()
 
         local levels = {
-            'RmHint',
+            'RmQuote1',
             'RmQuote2',
-            'RmError',
+            'RmQuote3',
             'RmQuote3',
         }
 
         marks:add(row:get(0, 0), { 0, 1 }, util.quote(levels[1]))
-        marks:add(row:get(0, 0), { 2, 14 }, {
-            virt_text = { { '󰅾 Important', levels[1] } },
-            virt_text_pos = 'overlay',
-        })
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
@@ -44,10 +40,6 @@ describe('quote', function()
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
         marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
         marks:add(row:get(0, 0), { 4, 5 }, util.quote(levels[3]))
-        marks:add(row:get(0, 0), { 6, 16 }, {
-            virt_text = { { '󰳦 Caution', levels[3] } },
-            virt_text_pos = 'overlay',
-        })
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
         marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
         marks:add(row:get(0, 0), { 4, 5 }, util.quote(levels[3]))
@@ -62,13 +54,13 @@ describe('quote', function()
         marks:add(row:get(0, 0), { 4, 5 }, util.quote(levels[4]))
 
         util.assert_view(marks, {
-            '▋ 󰅾 Important',
+            '▋ Important',
             '▋',
             '▋ Important',
             '▋',
             '▋ ▋ Normal',
             '▋ ▋ Note',
-            '▋ ▋ ▋ 󰳦 Caution',
+            '▋ ▋ ▋ Caution',
             '▋ ▋ ▋ Lookout',
             '▋ ▋ ▋',
             '▋ Important',
@@ -80,7 +72,7 @@ describe('quote', function()
         util.setup.text({
             '> # Heading',
             '>',
-            '> > [!TIP]',
+            '> > Tip',
             '> >',
             '> > Text',
         })
@@ -89,7 +81,7 @@ describe('quote', function()
 
         local levels = {
             'RmQuote1',
-            'RmSuccess',
+            'RmQuote2',
         }
 
         marks:add(row:get(0, 0), { 0, 1 }, util.quote(levels[1]))
@@ -100,10 +92,6 @@ describe('quote', function()
 
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
         marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
-        marks:add(row:get(0, 0), { 4, 10 }, {
-            virt_text = { { '󰌶 Tip', levels[2] } },
-            virt_text_pos = 'overlay',
-        })
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
         marks:add(row:get(0, 0), { 2, 3 }, util.quote(levels[2]))
         marks:add(row:get(1, 0), { 0, 1 }, util.quote(levels[1]))
@@ -112,7 +100,7 @@ describe('quote', function()
         util.assert_view(marks, {
             '󰫎 ▋ 󰲡 Heading',
             '  ▋',
-            '  ▋ ▋ 󰌶 Tip',
+            '  ▋ ▋ Tip',
             '  ▋ ▋',
             '  ▋ ▋ Text',
         })

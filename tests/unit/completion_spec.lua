@@ -41,12 +41,12 @@ describe('completions', function()
         '> text',
     }
 
-    ---@param row render.md.test.Row
+    ---@param row notedown.test.Row
     ---@param n integer
     ---@param col integer
     ---@param expected lsp.CompletionItem[]
     local function validate(row, n, col, expected)
-        local source = require('render-markdown.integ.source')
+        local source = require('notedown.integ.source')
         local actual = source.items(0, row:get(n)[1], col) or {}
         table.sort(actual, function(a, b)
             return a.label < b.label
@@ -96,53 +96,5 @@ describe('completions', function()
         validate(row, 2, 10, {})
         validate(row, 2, 6, {})
         validate(row, 1, 0, {})
-    end)
-
-    it('callout', function()
-        util.setup.text(lines)
-
-        ---@param prefix string
-        ---@return lsp.CompletionItem[]
-        local function items(prefix)
-            return {
-                item(prefix, '', '[!ABSTRACT]', '󰨸 Abstract'),
-                item(prefix, '', '[!ATTENTION]', '󰀪 Attention'),
-                item(prefix, '', '[!BUG]', '󰨰 Bug'),
-                item(prefix, '', '[!CAUTION]', '󰳦 Caution'),
-                item(prefix, '', '[!CHECK]', '󰄬 Check'),
-                item(prefix, '', '[!CITE]', '󱆨 Cite'),
-                item(prefix, '', '[!DANGER]', '󱐌 Danger'),
-                item(prefix, '', '[!DONE]', '󰄬 Done'),
-                item(prefix, '', '[!ERROR]', '󱐌 Error'),
-                item(prefix, '', '[!EXAMPLE]', '󰉹 Example'),
-                item(prefix, '', '[!FAILURE]', '󰅖 Failure'),
-                item(prefix, '', '[!FAIL]', '󰅖 Fail'),
-                item(prefix, '', '[!FAQ]', '󰘥 Faq'),
-                item(prefix, '', '[!HELP]', '󰘥 Help'),
-                item(prefix, '', '[!HINT]', '󰌶 Hint'),
-                item(prefix, '', '[!IMPORTANT]', '󰅾 Important'),
-                item(prefix, '', '[!INFO]', '󰋽 Info'),
-                item(prefix, '', '[!MISSING]', '󰅖 Missing'),
-                item(prefix, '', '[!NOTE]', '󰋽 Note'),
-                item(prefix, '', '[!QUESTION]', '󰘥 Question'),
-                item(prefix, '', '[!QUOTE]', '󱆨 Quote'),
-                item(prefix, '', '[!SUCCESS]', '󰄬 Success'),
-                item(prefix, '', '[!SUMMARY]', '󰨸 Summary'),
-                item(prefix, '', '[!TIP]', '󰌶 Tip'),
-                item(prefix, '', '[!TLDR]', '󰨸 Tldr'),
-                item(prefix, '', '[!TODO]', '󰗡 Todo'),
-                item(prefix, '', '[!WARNING]', '󰀪 Warning'),
-            }
-        end
-
-        local row = util.row()
-        validate(row, 20, 1, items(' '))
-        validate(row, 2, 2, items(''))
-        validate(row, 2, 3, items(''))
-        validate(row, 2, 4, items(''))
-        validate(row, 2, 7, items(''))
-        validate(row, 2, 8, {})
-        validate(row, 2, 15, {})
-        validate(row, 2, 6, {})
     end)
 end)

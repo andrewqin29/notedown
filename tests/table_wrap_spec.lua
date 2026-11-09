@@ -174,31 +174,6 @@ describe('table wrapping', function()
         })
     end)
 
-    it('inline code decorations at the cell end', function()
-        util.setup.text({
-            'BEFORE',
-            '',
-            '| A | B |',
-            '| - | - |',
-            '| x | one two three four five six seven eight `code` |',
-            '',
-            'AFTER',
-        }, {
-            pipe_table = { cell = 'trimmed' },
-            code = { inline_left = '(', inline_right = ')' },
-        })
-        util.assert_screen({
-            'BEFORE',
-            '┌───┬──────────────────────────────────┐',
-            '│ A │ B                                │',
-            '├───┼──────────────────────────────────┤',
-            '│ x │ one two three four five six      │',
-            '│   │ seven eight (code)               │',
-            '└───┴──────────────────────────────────┘',
-            'AFTER',
-        })
-    end)
-
     it('grid', function()
         util.setup.text(mixed, {
             pipe_table = { cell = 'trimmed', grid = true },

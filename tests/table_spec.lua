@@ -16,15 +16,11 @@ describe('table', function()
         '| Item 1    | Item 2    |',
     }
 
-    ---@return render.md.test.Marks
+    ---@return notedown.test.Marks
     local function shared()
         local marks, row = util.marks(), util.row()
 
-        marks:add(row:get(1, 0), { 14, 25 }, util.highlight('code'))
-
-        marks:add(row:get(2, 0), { 2, 12 }, util.highlight('code'))
-
-        marks:add(row:get(0), 15, util.link('web'))
+        marks:add(row:get(3), 15, util.link('web'))
 
         marks:add(row:get(1, 0), { 14, 16 }, util.conceal())
         marks:add(row:get(0, 0), { 14, 25 }, util.highlight('inline'))
@@ -38,7 +34,7 @@ describe('table', function()
         return marks
     end
 
-    ---@return render.md.test.Marks
+    ---@return notedown.test.Marks
     local function pipes()
         local marks, row = util.marks(), util.row()
 

@@ -1,6 +1,6 @@
 ---@module 'luassert'
 
-local str = require('render-markdown.lib.str')
+local str = require('notedown.lib.str')
 
 describe('str', function()
     describe('sub', function()

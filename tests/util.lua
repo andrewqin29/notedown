@@ -1,26 +1,28 @@
 ---@module 'luassert'
 
----@class render.md.test.Range
+---@class notedown.test.Range
 ---@field [1] integer
 ---@field [2]? integer
 
----@class render.md.test.MarkInfo: render.md.mark.Opts
----@field row render.md.test.Range
----@field col render.md.test.Range
+---@class notedown.test.MarkInfo: notedown.mark.Opts
+---@field row notedown.test.Range
+---@field col notedown.test.Range
 
----@class render.md.test.Util
+---@class notedown.test.Util
 local M = {}
 
----@class render.md.test.util.Setup
+---@class notedown.test.util.Setup
 M.setup = {}
 
 ---@private
----@param opts? render.md.UserConfig
+---@param opts? notedown.UserConfig
 function M.setup.init(opts)
     require('luassert.assert'):set_parameter('TableFormatLevel', 4)
     require('luassert.assert'):set_parameter('TableErrorHighlightColor', 'none')
-    ---@type render.md.UserConfig
+    ---@type notedown.UserConfig
     local test_config = {
+        -- the plain markdown renderer: the note format has its own tests
+        notes = false,
         anti_conceal = { enabled = false },
         win_options = { concealcursor = { rendered = 'nvic' } },
         overrides = {
@@ -30,11 +32,11 @@ function M.setup.init(opts)
         },
     }
     local config = vim.tbl_deep_extend('force', test_config, opts or {})
-    require('render-markdown').setup(config)
+    require('notedown').setup(config)
 end
 
 ---@param file string
----@param opts? render.md.UserConfig
+---@param opts? notedown.UserConfig
 function M.setup.file(file, opts)
     M.setup.init(opts)
     vim.cmd('e ' .. file)
@@ -42,7 +44,7 @@ function M.setup.file(file, opts)
 end
 
 ---@param lines string[]
----@param opts? render.md.UserConfig
+---@param opts? notedown.UserConfig
 function M.setup.text(lines, opts)
     M.setup.init(opts)
     local buf = vim.api.nvim_create_buf(false, true)
@@ -70,15 +72,12 @@ function M.conceal_lines()
     return { conceal_lines = '' }
 end
 
----@param kind 'code'|'inline'|'link'|'title'
+---@param kind 'inline'|'link'|'title'
 ---@return vim.api.keyset.set_extmark
 function M.highlight(kind)
     local priority ---@type integer?
     local highlight ---@type string
-    if kind == 'code' then
-        priority = 140
-        highlight = 'RmCodeInline'
-    elseif kind == 'inline' then
+    if kind == 'inline' then
         highlight = 'RmInlineHighlight'
     elseif kind == 'link' then
         priority = 1000
@@ -100,7 +99,7 @@ end
 ---@param icon? string
 ---@return vim.api.keyset.set_extmark
 function M.checkbox(kind, space, icon)
-    local line = {} ---@type render.md.mark.Line
+    local line = {} ---@type notedown.mark.Line
     if kind == 'checked' then
         line[#line + 1] = { icon or '󰱒 ', 'RmChecked' }
     elseif kind == 'unchecked' then
@@ -189,7 +188,7 @@ function M.padding(spaces, opts)
     }
 end
 
----@class render.md.test.Indent
+---@class notedown.test.Indent
 M.indent = {}
 
 ---@param lengths integer[]
@@ -215,9 +214,9 @@ end
 
 ---@private
 ---@param lengths integer[]
----@return render.md.mark.Line
+---@return notedown.mark.Line
 function M.indent.line(lengths)
-    local result = {} ---@type render.md.mark.Line
+    local result = {} ---@type notedown.mark.Line
     for _, length in ipairs(lengths) do
         if length == 1 then
             result[#result + 1] = { '▎', 'RmIndent' }
@@ -228,7 +227,7 @@ function M.indent.line(lengths)
     return result
 end
 
----@class render.md.test.Heading
+---@class notedown.test.Heading
 M.heading = {}
 
 ---@param level integer
@@ -264,113 +263,7 @@ function M.heading.bg(level)
     }
 end
 
----@class render.md.test.Code
-M.code = {}
-
----@param name render.md.test.Language
----@return vim.api.keyset.set_extmark
-function M.code.sign(name)
-    local icon = assert(M.code.icon(name))
-    ---@type vim.api.keyset.set_extmark
-    return {
-        sign_text = icon[1],
-        sign_hl_group = ('Rm_%s_RmSign'):format(icon[2]),
-    }
-end
-
----@param border string
----@param full boolean
----@param ... render.md.test.Language|string|integer
----@return vim.api.keyset.set_extmark
-function M.code.border(border, full, ...)
-    local parts = { ... }
-    if full then
-        assert(type(parts[#parts]) == 'number', 'invalid full border')
-        parts[#parts] = parts[#parts] + vim.o.columns
-    end
-
-    local line = {} ---@type render.md.mark.Line
-    for _, part in ipairs(parts) do
-        if type(part) == 'string' then
-            local icon = M.code.icon(part)
-            if icon then
-                local icon_hl = ('%s:RmCodeBorder'):format(icon[2])
-                line[#line + 1] = { icon[1] .. part, icon_hl }
-            else
-                line[#line + 1] = { part, 'RmCodeInfo:RmCodeBorder' }
-            end
-        elseif type(part) == 'number' then
-            line[#line + 1] = { border:rep(part), 'Rm_RmCodeBorder_bg_as_fg' }
-        else
-            error(('invalid border type: %s'):format(type(part)))
-        end
-    end
-
-    ---@type vim.api.keyset.set_extmark
-    return {
-        virt_text = line,
-        virt_text_pos = 'overlay',
-    }
-end
-
----@alias render.md.test.Language 'lua'|'py'|'python'|'rs'|'rust'
-
----@class render.md.test.Icon
----@field [1] string
----@field [2] string
-
----@private
----@param name render.md.test.Language
----@return render.md.test.Icon?
-function M.code.icon(name)
-    if name == 'lua' then
-        ---@type render.md.test.Icon
-        return { '󰢱 ', 'MiniIconsAzure' }
-    elseif name == 'py' or name == 'python' then
-        ---@type render.md.test.Icon
-        return { '󰌠 ', 'MiniIconsYellow' }
-    elseif name == 'rs' or name == 'rust' then
-        ---@type render.md.test.Icon
-        return { '󱘗 ', 'MiniIconsOrange' }
-    else
-        return nil
-    end
-end
-
----@return vim.api.keyset.set_extmark
-function M.code.bg()
-    ---@type vim.api.keyset.set_extmark
-    return {
-        priority = 140,
-        hl_eol = true,
-        hl_group = 'RmCode',
-    }
-end
-
----@param width integer
----@return vim.api.keyset.set_extmark
-function M.code.hide(width)
-    ---@type vim.api.keyset.set_extmark
-    return {
-        priority = 0,
-        virt_text = { { (' '):rep(vim.o.columns * 2), 'RmPadding' } },
-        ---@diagnostic disable-next-line: assign-type-mismatch
-        virt_text_pos = 'win_col',
-        virt_text_win_col = width,
-    }
-end
-
----@param kind 'block'|'inline'
----@param spaces integer
----@return vim.api.keyset.set_extmark
-function M.code.padding(kind, spaces)
-    return M.padding(spaces, {
-        priority = kind == 'inline' and 0 or nil,
-        highlight = kind == 'inline' and 'RmCodeInline' or 'RmCode',
-    })
-end
-
----@class render.md.test.Table
+---@class notedown.test.Table
 M.table = {}
 
 ---@param head boolean
@@ -453,14 +346,14 @@ function M.set_row(row, scroll_to_top)
     vim.wait(0)
 end
 
----@param marks render.md.test.Marks
+---@param marks notedown.test.Marks
 ---@param screen string[]
 function M.assert_view(marks, screen)
     M.assert_marks(marks:get())
     M.assert_screen(screen)
 end
 
----@param expected render.md.test.MarkInfo[]
+---@param expected notedown.test.MarkInfo[]
 function M.assert_marks(expected)
     local actual = M.actual_marks()
     for i = 1, math.min(#expected, #actual) do
@@ -471,13 +364,13 @@ function M.assert_marks(expected)
 end
 
 ---@private
----@return render.md.test.MarkInfo[]
+---@return notedown.test.MarkInfo[]
 function M.actual_marks()
-    local ui = require('render-markdown.core.ui')
+    local ui = require('notedown.core.ui')
     local marks = vim.api.nvim_buf_get_extmarks(0, ui.ns, 0, -1, {
         details = true,
     })
-    local actual = {} ---@type render.md.test.MarkDetails[]
+    local actual = {} ---@type notedown.test.MarkDetails[]
     for _, mark in ipairs(marks) do
         local row, col = mark[2], mark[3]
         local details = assert(mark[4], 'missing details')

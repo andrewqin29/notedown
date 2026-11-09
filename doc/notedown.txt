@@ -1,0 +1,23 @@
+*notedown.txt*  A note format for Neovim, built on markdown
+
+notedown renders markdown notes in the buffer, with a note format of its own.
+See the README (https://github.com/andrewqin29/notedown) for the format.
+
+==============================================================================
+COMMANDS                                                    *notedown-commands*
+
+:toc  or  gO        Table of contents popup: j/k to move, <CR> to jump, q or
+                    <Esc> to close.                                 *:Toc*
+:read               Toggle reading mode: full width, read-only, everything
+                    rendered under the cursor. <Esc> leaves it.     *:Read*
+                    (`:read {file}` is still Neovim's own |:read|.)
+:Notedown [cmd]     Rendering: enable, disable, toggle, and more.   *:Notedown*
+
+==============================================================================
+CONFIGURATION                                          *notedown-configuration*
+
+`require('notedown').setup(opts)` takes render-markdown.nvim's settings (see
+lua/notedown/settings.lua). `notes = false` turns the note format off, leaving
+plain markdown rendering.
+
+ vim:tw=78:ts=8:ft=help:norl:

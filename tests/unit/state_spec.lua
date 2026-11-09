@@ -1,12 +1,12 @@
 ---@module 'luassert'
 
-local state = require('render-markdown.state')
+local state = require('notedown.state')
 
 describe('state', function()
-    ---@param config render.md.UserConfig
+    ---@param config notedown.UserConfig
     ---@param expected string[]
     local function validate(config, expected)
-        require('render-markdown').setup(config)
+        require('notedown').setup(config)
         assert.same(expected, state.validate())
     end
 
@@ -49,10 +49,6 @@ describe('state', function()
 
     it('valid', function()
         local config = {
-            callout = {
-                note = { raw = 'value' },
-                new = { raw = 'value', rendered = 'value', highlight = 'value' },
-            },
             overrides = {
                 buftype = {
                     nofile = {
@@ -60,13 +56,11 @@ describe('state', function()
                         render_modes = {},
                         anti_conceal = {},
                         heading = {},
-                        code = {},
                         dash = {},
                         bullet = {},
                         checkbox = { unchecked = {}, checked = {} },
                         quote = {},
                         pipe_table = {},
-                        callout = {},
                         link = {},
                         sign = {},
                         win_options = {},
@@ -81,9 +75,7 @@ describe('state', function()
         local config = {
             additional = true,
             anti_conceal = { ignore = { additional = true } },
-            callout = { note = { additional = true } },
             checkbox = { checked = { additional = true } },
-            latex = { additional = true },
             overrides = {
                 additional = true,
                 buftype = { nofile = { additional = true } },
@@ -92,9 +84,7 @@ describe('state', function()
         local expected = {
             'additional - expected: nil, got: boolean',
             'anti_conceal.ignore.additional - expected: nil, got: boolean',
-            'callout.note.additional - expected: nil, got: boolean',
             'checkbox.checked.additional - expected: nil, got: boolean',
-            'latex.additional - expected: nil, got: boolean',
             'overrides.additional - expected: nil, got: boolean',
             'overrides.buftype.nofile.additional - expected: nil, got: boolean',
         }
@@ -105,10 +95,6 @@ describe('state', function()
         local config = {
             anti_conceal = { ignore = { sign = 'invalid' } },
             bullet = { icons = 0 },
-            callout = {
-                a = { raw = 'value', rendered = 'value' },
-                b = 'invalid',
-            },
             checkbox = { checked = false, unchecked = { icon = false } },
             custom_handlers = {
                 markdown = { extends = 'invalid', parse = 'invalid' },
@@ -135,8 +121,6 @@ describe('state', function()
         local expected = {
             'anti_conceal.ignore.sign - expected: string[]|boolean, got: "invalid"',
             'bullet.icons - expected: string|string[]|string[][]|function, got: 0',
-            'callout.a.highlight - expected: string, got: nil',
-            'callout.b - expected: table, got: string',
             'checkbox.checked - expected: table, got: boolean',
             'checkbox.unchecked.icon - expected: string, got: boolean',
             'custom_handlers.markdown.extends - expected: boolean?, got: string',

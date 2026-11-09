@@ -12,36 +12,36 @@ needed, and concealing when the cursor enters.
 Each handler must conform to the following interface:
 
 ```lua
----@class (exact) render.md.Handler
+---@class (exact) notedown.Handler
 ---@field extends? boolean
----@field parse fun(ctx: render.md.handler.Context): render.md.Mark[]
+---@field parse fun(ctx: notedown.handler.Context): notedown.Mark[]
 
----@class (exact) render.md.handler.Context
+---@class (exact) notedown.handler.Context
 ---@field buf integer
 ---@field root TSNode
 ---@field last boolean
 
----@class (exact) render.md.Mark
----@field modes? render.md.Modes
----@field conceal render.md.mark.Conceal
+---@class (exact) notedown.Mark
+---@field modes? notedown.Modes
+---@field conceal notedown.mark.Conceal
 ---@field start_row integer
 ---@field start_col integer
----@field opts render.md.mark.Opts
----@field replace? render.md.mark.Line[]
+---@field opts notedown.mark.Opts
+---@field replace? notedown.mark.Line[]
 
----@alias render.md.mark.Conceal boolean|render.md.Element
+---@alias notedown.mark.Conceal boolean|notedown.Element
 
----@class render.md.mark.Opts: vim.api.keyset.set_extmark
----@field virt_text? render.md.mark.Line
----@field virt_lines? render.md.mark.Line[]
+---@class notedown.mark.Opts: vim.api.keyset.set_extmark
+---@field virt_text? notedown.mark.Line
+---@field virt_lines? notedown.mark.Line[]
 
----@alias render.md.mark.Line render.md.mark.Text[]
+---@alias notedown.mark.Line notedown.mark.Text[]
 
----@class (exact) render.md.mark.Text
+---@class (exact) notedown.mark.Text
 ---@field [1] string text
----@field [2] render.md.mark.Hl highlight
+---@field [2] notedown.mark.Hl highlight
 
----@alias render.md.mark.Hl string|string[]
+---@alias notedown.mark.Hl string|string[]
 ```
 
 The `parse` function takes a `ctx` parameter whose fields are:
@@ -71,14 +71,14 @@ For each `mark` in the return value the fields mean:
 By not specifying the `extends` field and having the `parse` implementation return
 an empty table we can disable a builtin handler. Though this has little benefit
 and can be accomplished in other ways like setting
-`{ latex = { enabled = false } }` for `latex`.
+`{ yaml = { enabled = false } }` for `yaml`.
 
-Still as a toy example disabling the `latex` handler can be done with:
+Still as a toy example disabling the `yaml` handler can be done with:
 
 ```lua
-require('render-markdown').setup({
+require('notedown').setup({
     custom_handlers = {
-        latex = {
+        yaml = {
             parse = function()
                 return {}
             end,
@@ -95,7 +95,7 @@ This will require a treesitter query and using the range values of nodes.
 -- Parse query outside of the function to avoid doing it for each call
 local query = vim.treesitter.query.parse('python', '(function_definition) @def')
 local function parse_python(ctx)
-    local marks = {} ---@type render.md.Mark[]
+    local marks = {} ---@type notedown.Mark[]
     for id, node in query:iter_captures(ctx.root, ctx.buf) do
         local capture = query.captures[id]
         local start_row = node:range()
@@ -115,7 +115,7 @@ local function parse_python(ctx)
     end
     return marks
 end
-require('render-markdown').setup({
+require('notedown').setup({
     file_types = { 'markdown', 'python' },
     custom_handlers = {
         python = { parse = parse_python },

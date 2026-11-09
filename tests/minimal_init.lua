@@ -25,7 +25,9 @@ vim.opt.rtp:prepend(get_path({ 'mini.nvim', 'mini.icons' }))
 
 -- source this plugin
 vim.opt.rtp:prepend('.')
-vim.cmd.runtime('plugin/render-markdown.lua')
+-- the plain markdown renderer: the note format has its own tests
+vim.g.notedown_config = { notes = false }
+vim.cmd.runtime('plugin/notedown.lua')
 
 -- used for unit testing
 vim.opt.rtp:prepend(get_path({ 'plenary.nvim' }))
