@@ -28,6 +28,7 @@ local SECTIONS = {
     title = "Commands",
     { ":toc  gO", "table of contents: Enter jumps, q closes" },
     { ":read", "reading mode: Esc leaves" },
+    { ":raw", "reading mode, nothing rendered" },
     { ":Notedown", "rendering off and on" },
     { ":help  F1", "this help; :help topic for nvim's" },
   },

@@ -4,6 +4,9 @@
 -- read-only, and a minimal status line (the note's name and how far through it
 -- you are). Moving around works as usual; Esc or :Read again goes back.
 --
+-- Raw reading mode (:Raw, or :raw) is the same, with nothing rendered: the
+-- note's text as typed, images hidden. :Read and :Raw switch between the two.
+--
 -- The column is snacks.nvim's zen window. Closing it any way (:q, or moving to
 -- another window) leaves reading mode too.
 
@@ -16,7 +19,7 @@ M.WIDTH, M.MIN = 0, 60
 local EDIT_KEYS = { "i", "I", "a", "A", "o", "O", "s", "S", "c", "C", "x", "X", "d", "D",
   "p", "P", "r", "R", "J", "u", "U", ".", "<C-r>", "<C-a>", "<C-x>", "<", ">", "=" }
 
-local state -- { buf, zen, modifiable, statusline } while reading
+local state -- { buf, zen, modifiable, statusline, raw } while reading
 
 local function exit()
   if not state then return end
@@ -26,14 +29,25 @@ local function exit()
     vim.bo[s.buf].modifiable = s.modifiable
     for _, key in ipairs(EDIT_KEYS) do pcall(vim.keymap.del, { "n", "x" }, key, { buffer = s.buf }) end
     pcall(vim.keymap.del, "n", "<Esc>", { buffer = s.buf })
-    require("notedown.render").everywhere(s.buf, false)
+    local render = require("notedown.render")
+    render.everywhere(s.buf, false)
+    render.raw(s.buf, false)
   end
   vim.o.statusline = s.statusline
   pcall(function() require("lualine").hide({ unhide = true }) end)
   if s.zen:valid() then s.zen:close() end
 end
 
-local function enter()
+-- Rendered, or raw, and the status line saying which.
+local function look(raw)
+  state.raw = raw
+  local render = require("notedown.render")
+  render.everywhere(state.buf, not raw)
+  render.raw(state.buf, raw)
+  vim.o.statusline = "%#Comment#  %t" .. (raw and "  ·  raw" or "") .. "%=%p%%  "
+end
+
+local function enter(raw)
   local buf = vim.api.nvim_get_current_buf()
   if vim.bo[buf].filetype ~= "markdown" then
     vim.notify("Reading mode is for markdown files", vim.log.levels.WARN)
@@ -76,20 +90,29 @@ local function enter()
     vim.cmd("nohlsearch")
     exit()
   end, { buffer = buf, desc = "Leave reading mode" })
-  require("notedown.render").everywhere(buf, true)
-
   pcall(function() require("lualine").hide({ place = { "statusline" }, unhide = false }) end)
-  vim.o.statusline = "%#Comment#  %t%=%p%%  "
+  look(raw)
 end
 
-function M.toggle()
-  if state then exit() else enter() end
+-- Reading mode, or with raw raw reading mode: on, off, or switched to the
+-- other.
+function M.toggle(raw)
+  raw = raw or false
+  if not state then
+    enter(raw)
+  elseif state.raw == raw then
+    exit()
+  else
+    look(raw)
+  end
 end
 
 function M.active() return state ~= nil end
 
 function M.setup()
-  vim.api.nvim_create_user_command("Read", M.toggle, { desc = "Toggle reading mode for markdown" })
+  vim.api.nvim_create_user_command("Read", function() M.toggle(false) end, { desc = "Toggle reading mode for markdown" })
+  vim.api.nvim_create_user_command("Raw", function() M.toggle(true) end,
+    { desc = "Toggle raw reading mode for markdown: nothing rendered" })
 end
 
 return M

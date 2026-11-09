@@ -16,7 +16,7 @@
 --   breadcrumb      the heading path at the top of markdown windows
 --   toc             gO or :toc, a table of contents popup
 --   help            :help or F1, what to write and the commands
---   reading         :read, reading mode
+--   reading         :read, reading mode, and :raw, raw reading mode
 
 local M = {}
 
@@ -32,11 +32,11 @@ local function markdown_file(buf)
 end
 
 -- Lowercase commands for markdown: nvim only allows commands of your own that
--- start with a capital, so :read, :toc, :help and :h typed on their own are
--- turned into :Read, :Toc and :Help when you press Enter. With anything after
+-- start with a capital, so :read, :raw, :toc, :help and :h typed on their own
+-- are turned into :Read, :Raw, :Toc and :Help when you press Enter. With anything after
 -- them they're nvim's own: :read file puts its text below the cursor, :help
 -- topic opens nvim's help.
-local LOWERCASE = { read = "Read", toc = "Toc", help = "Help", h = "Help" }
+local LOWERCASE = { read = "Read", raw = "Raw", toc = "Toc", help = "Help", h = "Help" }
 
 local function lowercase()
   local command = vim.fn.getcmdtype() == ":" and LOWERCASE[vim.fn.getcmdline()]

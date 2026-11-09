@@ -59,10 +59,10 @@ local defaults = {}
 M.enabled = true
 
 -- By buffer: { marks, rows, hidden, shown, tick, width, timer, pending,
--- everywhere, zone }. rows has the typed marks on each row; hidden, the ones
+-- everywhere, raw, zone }. rows has the typed marks on each row; hidden, the ones
 -- given way for the cursor; shown, whether the rest are placed. tick and width
 -- are what the marks were worked out for. everywhere is reading mode's (no line
--- shows as typed). zone is the editing zone's extmark, in insert mode.
+-- shows as typed), raw raw reading mode's (nothing rendered). zone is the editing zone's extmark, in insert mode.
 local buffers = {}
 
 local function show(buf, mark)
@@ -157,6 +157,7 @@ local function draw(buf)
 
   local mode = vim.fn.mode(true):sub(1, 1)
   local rendered = M.enabled
+    and not state.raw
     and MODES[mode]
     and vim.api.nvim_win_call(win, vim.fn.winsaveview).leftcol == 0
     and not vim.wo[win].diff
@@ -286,9 +287,27 @@ function M.everywhere(buf, on)
   M.request(buf)
 end
 
+-- Raw reading mode: nothing rendered, images included.
+function M.raw(buf, on)
+  local state = buffers[buf]
+  if not state then return end
+  state.raw = on
+  M.request(buf)
+  require("notedown.images").update(buf)
+end
+
+-- Whether the buffer's images show (images.lua): not when rendering is off
+-- or in raw reading mode.
+function M.shows(buf)
+  return M.enabled and not (buffers[buf] and buffers[buf].raw)
+end
+
 function M.toggle()
   M.enabled = not M.enabled
-  for buf in pairs(buffers) do M.request(buf) end
+  for buf in pairs(buffers) do
+    M.request(buf)
+    require("notedown.images").update(buf)
+  end
 end
 
 function M.setup()

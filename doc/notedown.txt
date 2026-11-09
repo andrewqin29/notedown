@@ -14,6 +14,9 @@ COMMANDS                                                    *notedown-commands*
 :read               Toggle reading mode: full width, read-only, everything
                     rendered under the cursor. <Esc> leaves it.     *:Read*
                     (`:read {file}` is still Neovim's own |:read|.)
+:raw                Toggle raw reading mode: reading mode with nothing
+                    rendered, the note as typed. `:read` and `:raw`
+                    switch between the two.                         *:Raw*
 :Notedown           Toggle rendering.                               *:Notedown*
 
 ==============================================================================

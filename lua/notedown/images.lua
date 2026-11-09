@@ -13,6 +13,8 @@
 -- its text while its line is being edited, and becomes an image again once
 -- the cursor leaves it. Where images can't be shown, the text shows as typed.
 --
+-- None show while rendering is off (:Notedown) or in raw reading mode.
+--
 -- snacks finds images itself with tree-sitter, which can't see >> blocks, and
 -- doesn't center, caption or resize them, so this wraps parts of it (M.setup).
 
@@ -233,6 +235,9 @@ local function configure(config)
   end
 end
 
+-- Update the buffer's images now (set in M.setup, once snacks is there).
+function M.update(_) end
+
 function M.setup()
   local ok, image = pcall(function() return Snacks.image end)
   if not ok or not image or not image.config then return end
@@ -266,6 +271,9 @@ function M.setup()
     updaters[buf] = updater
     return updater
   end
+  M.update = function(buf)
+    if updaters[buf] then updaters[buf]:update() end
+  end
 
   -- The row (1-based) of a heading left as text by buffer, while the cursor
   -- is on it: snacks finds images again after every change, and each version
@@ -290,7 +298,9 @@ function M.setup()
   local find = doc.find
   doc.find = function(buf, cb, opts)
     find(buf, function(matches)
-      if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "markdown" then
+      if not require("notedown.render").shows(buf) then
+        matches = {}
+      elseif vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "markdown" then
         local scan = require("notedown.blocks").scan(buf)
         local from, to = opts and opts.from, opts and opts.to
         matches = own_matches(buf, matches)

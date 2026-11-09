@@ -38,6 +38,7 @@ Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
 | `:help` or `F1`  | what to write and the commands, popup |
 | `:toc` or `gO`   | table of contents popup               |
 | `:read`          | toggle reading mode                   |
+| `:raw`           | toggle reading mode, nothing rendered |
 | `:Notedown`      | toggle rendering                      |
 
 In a markdown file `:help` on its own is notedown's; `:help topic` is still
