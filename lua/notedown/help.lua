@@ -22,6 +22,7 @@ local SECTIONS = {
     { "*bold* _italic_", "bold, italic" },
     { "==highlight== --struck--", "highlighted, struck through" },
     { "![caption](picture.png)", "the picture, centered, with its caption" },
+    { "[^label]", "a numbered footnote, its stub added at the end" },
     { [[-- "quotes" 1/2 (c) 2026]], "— “quotes” ½ ©" },
   },
   {

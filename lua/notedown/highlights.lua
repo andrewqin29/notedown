@@ -25,6 +25,8 @@ local LINKS = {
   NotedownChecked = "@markup.list.checked",
   NotedownQuote = "@markup.quote",
   NotedownDash = "LineNr",
+  -- a footnote's number in the text
+  NotedownFootnoteRef = "@markup.link",
   -- what you type, in the help popup
   NotedownHelpKey = "@label",
 }
@@ -65,6 +67,9 @@ function M.define()
   -- ==highlights==, bright yellow; --strikethroughs--; picture captions, dim and italic.
   vim.api.nvim_set_hl(0, "NotedownHighlight", { bg = "#ffd700", fg = "#000000" })
   vim.api.nvim_set_hl(0, "NotedownStrikethrough", { strikethrough = true })
+  -- Footnotes at the end of a note: the text's color, halfway to the
+  -- background.
+  vim.api.nvim_set_hl(0, "NotedownFootnote", { fg = blend(normal.fg or 0xffffff, normal.bg or 0, 0.5) })
   vim.api.nvim_set_hl(0, "NotedownImageCaption", { fg = get("Comment").fg, italic = true })
   -- >> boxed: white text, the border in the editor's text color.
   vim.api.nvim_set_hl(0, "NotedownBoxText", { fg = "#ffffff" })

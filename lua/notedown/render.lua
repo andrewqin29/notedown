@@ -1,5 +1,6 @@
 -- Drawing notes. Each markdown file gets marks (extmarks) from every part of
--- the format: markdown.lua, blocks.lua, justify.lua and typography.lua. They
+-- the format: markdown.lua, blocks.lua, justify.lua, typography.lua and
+-- footnotes.lua. They
 -- are worked out again after a change, or when the window's width changes,
 -- and kept while the cursor moves.
 --
@@ -100,6 +101,7 @@ local function marks(buf)
   require("notedown.blocks").marks(buf, scan, add)
   require("notedown.justify").marks(buf, scan, add)
   require("notedown.typography").marks(scan, add)
+  require("notedown.footnotes").marks(scan, add)
   return list, rows
 end
 

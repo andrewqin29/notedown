@@ -8,6 +8,7 @@
 --                   and other code, >> latex, >> mermaid, >> boxed
 --   justify         justified paragraphs, lines broken for the whole paragraph
 --   typography      dashes, curly quotes, fractions, © ® ™
+--   footnotes       [^label] numbered, and the section of them kept up to date
 --   images          typeset math, diagrams and pictures, with snacks.nvim
 --   heading_images  # and ## drawn larger, as images
 --   queries         markdown syntax the format replaces does nothing;
@@ -28,6 +29,7 @@ local function markdown_file(buf)
   vim.bo[buf].formatlistpat = require("notedown.blocks").list_pattern
   -- The table of contents popup, in place of nvim's own gO (location list).
   vim.keymap.set("n", "gO", function() require("notedown.toc").open() end, { buffer = buf, desc = "Table of contents" })
+  require("notedown.footnotes").attach(buf)
   vim.keymap.set("n", "<F1>", function() require("notedown.help").open() end, { buffer = buf, desc = "notedown help" })
 end
 

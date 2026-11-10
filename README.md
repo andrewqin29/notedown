@@ -18,6 +18,7 @@ Early development: expect changes.
 | `-` `1.` `- [ ]` `>` `---`                       | bullets, numbers, checkboxes, quote bars, a line            |
 | `*bold*` `_italic_` `==highlight==` `--struck--` | bold, italic, highlighted, struck through                   |
 | `![caption](picture.png)`                        | the picture, centered, with its caption                     |
+| `[^label]`                                       | a numbered footnote (below)                                 |
 | `--` `"quotes"` `1/2` `(c) 2026`                 | — “quotes” ½ ©                                              |
 
 Paragraphs are justified, a breadcrumb at the top of the window shows the
@@ -26,6 +27,12 @@ insert mode the whole block you're editing (paragraph, list, `>>` block)
 shows as typed, and the rest of the note stays rendered. Only
 markdown files are rendered: not other buffers holding markdown, such as LSP
 hover popups.
+
+Footnotes are numbered by first use, with any label: `[^bits]` shows as ¹.
+Their definitions, `[^bits]: text`, are kept at the end of the note: a stub
+is added for each new label, they're put in the order they're used, and a
+definition whose label is no longer used is deleted with its text (one `u`
+undoes the edit and the change to the footnotes together).
 
 Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
 ```` ``` ```` code blocks, `$$` math, setext headings, `**bold**`,
