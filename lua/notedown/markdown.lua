@@ -4,7 +4,8 @@
 --                across the window (# and ## are images, heading_images.lua)
 --   - lists      a bullet by how deeply the list is nested, and the list moved
 --                in from the text around it; 1. 1. 1. numbered 1. 2. 3.
---   - [ ] tasks  the checkbox as an icon, in place of the bullet
+--   [x] [-]      a checked and an unchecked box, as icons: at the start of a
+--                line, or after a bullet in place of it ("- [x] done")
 --   > quotes     a bar for each >, on wrapped lines too
 --   ---          a line across the window
 --   ==text==     highlighted
@@ -132,31 +133,56 @@ local function bullet(buf, item, marker, add)
   end
 end
 
--- The bullet hidden and "[ ] " drawn as the list's indent and the icon, then
--- one more column, so the text starts as far in as after a bullet.
-local function checkbox(buf, marker, box, add)
+-- Whether the line has a checkbox at the byte (from 0): true for [x], false
+-- for [-], nil for none. A box is followed by a space or the line's end.
+local function box_at(line, col)
+  local mark = line:match("^%[([x%-])%]", col + 1)
+  if mark and line:sub(col + 4, col + 4):match("^%s?$") then return mark == "x" end
+end
+
+-- The bullet and box hidden, and the list's indent and the icon drawn in
+-- their place; the space after the box stays, so the text starts as far in as
+-- after a bullet. (Hidden, not drawn over: markdown reads [-] as a link and
+-- hides its brackets itself.)
+local function checkbox(buf, marker, checked, add)
   local text = vim.treesitter.get_node_text(marker, buf)
   local row, col, end_row, end_col = marker:range()
-  add(row, col + #text:match("^%s*"), true, { end_row = end_row, end_col = end_col, conceal = "" })
-  local icon = box:type() == "task_list_marker_checked" and CHECKED or UNCHECKED
-  local box_row, box_col, _, box_end = box:range()
-  add(box_row, box_col, true, {
-    virt_text = { { LIST_INDENT }, icon },
-    virt_text_pos = "overlay",
-    hl_mode = "combine",
+  add(row, col + #text:match("^%s*"), true, {
+    end_row = end_row,
+    end_col = end_col + 3,
+    conceal = "",
+    virt_text = { { LIST_INDENT }, checked and CHECKED or UNCHECKED },
+    virt_text_pos = "inline",
   })
-  add(box_row, box_end + 1, true, { virt_text = { { " " } }, virt_text_pos = "inline", hl_mode = "combine" })
 end
 
 local function list_item(buf, item, add)
   local marker = item:named_child(0)
   if not marker or not marker:type():find("^list_marker") then return end
-  local box = marker:next_named_sibling()
-  local _, _, _, marker_end = marker:range()
-  if box and box:type():find("^task_list_marker") and select(2, box:range()) == marker_end then
-    checkbox(buf, marker, box, add)
+  local _, _, row, marker_end = marker:range()
+  local checked = box_at(vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1] or "", marker_end)
+  if checked ~= nil then
+    checkbox(buf, marker, checked, add)
   else
     bullet(buf, item, marker, add)
+  end
+end
+
+-- Checkboxes at the start of a line, without a bullet: the box and the space
+-- after it drawn as the icon. (Lines in a box neither, as with lists.)
+local function bare_checkboxes(scan, add)
+  for i, line in ipairs(scan.lines) do
+    local row = i - 1
+    local indent = #line:match("^%s*")
+    local checked = box_at(line, indent)
+    if checked ~= nil and not scan.fenced[row] and not scan.verbatim[row] and not scan.box[row] then
+      add(row, indent, true, {
+        end_col = math.min(indent + 4, #line),
+        conceal = "",
+        virt_text = { checked and CHECKED or UNCHECKED },
+        virt_text_pos = "inline",
+      })
+    end
   end
 end
 
@@ -238,6 +264,7 @@ function M.marks(buf, scan, add)
   local ok, parser = pcall(vim.treesitter.get_parser, buf, "markdown")
   if not ok or not parser then return end
   parser:parse(true)
+  bare_checkboxes(scan, add)
   parser:for_each_tree(function(tree, language_tree)
     local lang = language_tree:lang()
     if lang == "markdown" then

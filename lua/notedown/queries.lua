@@ -7,6 +7,7 @@
 --                     reads what's inside as code, so nothing renders there
 --   setext headings  (# and ##)  Title over === or --- is a paragraph
 --   **x** and __x__  plain text, their marks showing
+--   [ ] and [X]      ([-] and [x])  plain text
 --   ~~x~~            (--x--)  plain text too
 --
 -- and emphasis is *bold* and _italic_ (markdown reads * and _ both as italic,
@@ -52,6 +53,9 @@ function M.setup()
     -- Setext headings.
     "%(setext_heading%s*%(paragraph%) @markup%.heading%.1%s*%(setext_h1_underline%) @markup%.heading%.1%)",
     "%(setext_heading%s*%(paragraph%) @markup%.heading%.2%s*%(setext_h2_underline%) @markup%.heading%.2%)",
+    -- Task list markers ([ ], [x]); markdown.lua draws [x] and [-].
+    "%(task_list_marker_unchecked%) @markup%.list%.unchecked%s*\n",
+    "%(task_list_marker_checked%) @markup%.list%.checked%s*\n",
     -- Code blocks: their color, and hiding the fence and language lines.
     "%(indented_code_block%) @markup%.raw%.block",
     "%(%(fenced_code_block%) @markup%.raw%.block%s*%(#set! priority 90%)%)",

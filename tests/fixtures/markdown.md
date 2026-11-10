@@ -11,9 +11,14 @@
     - deeper item
       - deepest item
         - cycles back to the first bullet
-- [ ] unchecked task
+- [-] unchecked task
 - [x] checked task
-  - [ ] nested task
+  - [-] nested task
+
+[x] a box without a bullet
+[-] and an unchecked one, long enough to wrap onto a second line under its text so the indent shows
+
+- [ ] not a box
 
 1. one
 1. two

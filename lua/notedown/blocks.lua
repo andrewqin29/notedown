@@ -83,12 +83,14 @@ local BAR = "▋"
 -- as the rendered prefix in front of the text, so wrapped lines continue under
 -- the text. Lines that match nothing, like paragraphs, continue at the left.
 --
---   "- [ ] x"  5: two columns of list indent, then the checkbox and a space
+--   "- [x] x"  5: two columns of list indent, then the checkbox and a space
+--   "[x] x"    2: the checkbox and a space (the [x] matched only ahead)
 --   "- x"      4: the indent, then "● " (hence the 2 extra characters matched)
 --   "1. x"     5: the indent, then "1. "
 --   "> x"      2: the bar and a space, for each level of quote
 M.list_pattern = table.concat({
-  [=[^\s*[-*+]\s\+\[[ xX-]\]]=],
+  [=[^\s*[-*+]\s\+\[[x-]\]]=],
+  [=[^\s*\%(\[[x-]\]\%(\s\|$\)\)\@=..]=],
   [=[^\s*[-*+]\s\+\S.]=],
   [=[^\s*\d\+[.)]\s\+\S.]=],
   [=[^\%(>\s\?\)\+]=],

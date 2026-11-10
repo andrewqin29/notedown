@@ -15,7 +15,8 @@ Early development: expect changes.
 | `>> boxed` … `<<`                                | its lines in a box                                          |
 | `#` `##`                                         | larger headings, drawn as images                            |
 | `###` to `######`                                | headings on a colored bar                                   |
-| `-` `1.` `- [ ]` `>` `---`                       | bullets, numbers, checkboxes, quote bars, a line            |
+| `-` `1.` `>` `---`                               | bullets, numbers, quote bars, a line                        |
+| `[x]` `[-]`                                      | a checked and an unchecked box (also after `-`)             |
 | `*bold*` `_italic_` `==highlight==` `--struck--` | bold, italic, highlighted, struck through                   |
 | `![caption](picture.png)`                        | the picture, centered, with its caption                     |
 | `[^label]`                                       | a numbered footnote (below)                                 |
@@ -36,7 +37,7 @@ undoes the edit and the change to the footnotes together).
 
 Markdown syntax the format replaces does nothing: `> [!NOTE]` callouts,
 ```` ``` ```` code blocks, `$$` math, setext headings, `**bold**`,
-`__bold__` and `~~struck~~`. Tables show as typed.
+`__bold__`, `~~struck~~` and `[ ]` boxes. Tables show as typed.
 
 ## Commands
 
